@@ -32,7 +32,7 @@ public class IncidentController {
     @PostMapping
     public  ResponseEntity<IncidentResponseDTO> registerIncident(@Valid @RequestBody IncidentRequestDTO request){
         IncidentResponseDTO response = incidentService.register(request);
-        return ResponseEntity.created(null).body(response);
+        return ResponseEntity.status(201).body(response);
     }
 
     @PutMapping("/{id}")

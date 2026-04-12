@@ -69,4 +69,5 @@ public class IncidentServiceImplementation implements IncidentService {
 
         incidentRepository.delete(incident);
     }
+
 }

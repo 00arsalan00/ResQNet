@@ -12,41 +12,67 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(IncidentNotFoundException.class)
-    public ResponseEntity<ApiError> handleIncidentNotFound(IncidentNotFoundException ex,
-                                                           HttpServletRequest request){
-        ApiError error = ApiError.builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
-                .build();
+    public ResponseEntity<ApiError> handleIncidentNotFound(
+            IncidentNotFoundException ex,
+            HttpServletRequest request) {
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ApiError> handleInvalidId(MethodArgumentTypeMismatchException ex,
-                                                    HttpServletRequest request){
-        ApiError error = ApiError.builder()
-                .status(HttpStatus.BAD_REQUEST.value())
-                .message("Invalid ID")
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
-                .build();
+    public ResponseEntity<ApiError> handleInvalidId(
+            MethodArgumentTypeMismatchException ex,
+            HttpServletRequest request) {
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return buildError(HttpStatus.BAD_REQUEST,
+                "Invalid value for parameter: " + ex.getName(),
+                request);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleException(Exception ex,HttpServletRequest request){
+        ex.printStackTrace();
+
+        return buildError(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal Server Error",
+                request);
+    }
+
+    @ExceptionHandler(RescueTeamNotFoundException.class)
+    public ResponseEntity<ApiError> handleRescueTeamNotFound(
+            RescueTeamNotFoundException ex,
+            HttpServletRequest request) {
+
+        return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiError> handleValidationException(
+            org.springframework.web.bind.MethodArgumentNotValidException ex,
+            HttpServletRequest request) {
+
+        String message = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .findFirst()
+                .orElse("Validation error");
+
+        return buildError(HttpStatus.BAD_REQUEST, message, request);
+    }
+
+    private ResponseEntity<ApiError> buildError(HttpStatus status,
+                                                String message,
+                                                HttpServletRequest request) {
+
         ApiError error = ApiError.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .message("Internal Server Error")
+                .status(status.value())
+                .message(message)
                 .path(request.getRequestURI())
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        return ResponseEntity.status(status).body(error);
     }
 
 

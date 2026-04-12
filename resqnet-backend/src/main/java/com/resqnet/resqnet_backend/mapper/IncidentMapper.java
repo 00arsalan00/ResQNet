@@ -26,27 +26,27 @@ public class IncidentMapper {
 
         return IncidentResponseDTO.builder()
                 .id(incident.getId())
-                .type(incident.getType())          // ✔ correct (DTO uses enum)
+                .type(incident.getType())
                 .severity(incident.getSeverity())
-                .status(incident.getStatus())      // ✔ clean
+                .status(incident.getStatus())
                 .latitude(latitude)
                 .longitude(longitude)
                 .reporter(incident.getReporter())
                 .build();
     }
 
-    public Incident toEntity(IncidentRequestDTO dto, GeometryFactory geometryFactory) {
+    public Incident toEntity(IncidentRequestDTO request, GeometryFactory geometryFactory) {
 
         Point point = geometryFactory.createPoint(
-                new Coordinate(dto.getLongitude(), dto.getLatitude()) // ✔ correct order
+                new Coordinate(request.getLongitude(), request.getLatitude())
         );
 
         return Incident.builder()
-                .type(dto.getType())
-                .severity(dto.getSeverity())
+                .type(request.getType())
+                .severity(request.getSeverity())
                 .location(point)
                 .status(IncidentStatus.REPORTED)
-                .reporter(dto.getReporter())
+                .reporter(request.getReporter())
                 .build();
     }
 }

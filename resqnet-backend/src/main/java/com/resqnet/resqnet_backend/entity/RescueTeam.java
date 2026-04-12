@@ -15,11 +15,17 @@ import java.util.*;
 public class RescueTeam {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false)
     private String teamName;
+
+    @Column(nullable = false)
+    private String captainName;
+
+    @Column(nullable = false, unique = true)
+    private String contactInfo;
 
     @Column(nullable = false)
     private Integer capacity;
@@ -27,8 +33,9 @@ public class RescueTeam {
     @Column(columnDefinition = "geometry(Point, 4326)")
     private Point location;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Boolean available;
+    private TeamStatus status;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "rescue_team_skills", joinColumns = @JoinColumn(name = "team_id"))
@@ -37,7 +44,4 @@ public class RescueTeam {
     @Builder.Default
     private List<SkillType> skills = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "rescueTeams", fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<Incident> incidents = new ArrayList<>();
 }
