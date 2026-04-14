@@ -1,7 +1,9 @@
 package com.resqnet.resqnet_backend.dto;
 
 import com.resqnet.resqnet_backend.entity.SkillType;
+import com.resqnet.resqnet_backend.entity.TeamStatus;
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
@@ -23,6 +25,9 @@ public class RescueTeamRequestDTO {
 
     @NotEmpty(message = "At least one skill is required")
     private List<SkillType> skills;
+
+    @NotNull
+    private TeamStatus status;
 
     @NotNull(message = "Latitude is required")
     @DecimalMin(value = "-90.0", message = "Latitude must be >= -90")

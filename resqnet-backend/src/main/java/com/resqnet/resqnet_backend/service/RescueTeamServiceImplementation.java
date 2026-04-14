@@ -21,8 +21,8 @@ import java.util.UUID;
 public class RescueTeamServiceImplementation implements RescueTeamService {
 
     private final RescueTeamRepository rescueTeamRepository;
-    private final RescueTeamMapper rescueTeamMapper;
     private final GeometryFactory geometryFactory;
+    private final RescueTeamMapper rescueTeamMapper;
 
     @Override
     public RescueTeamResponseDTO getById(UUID id) {
