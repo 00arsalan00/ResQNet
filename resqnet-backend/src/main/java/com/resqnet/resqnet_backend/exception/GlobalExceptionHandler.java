@@ -62,6 +62,14 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(AssignmentNotFound.class)
+    public ResponseEntity<ApiError> handleAssignmentNotFound(
+            AssignmentNotFound assignmentNotFound,
+            HttpServletRequest request
+    ){
+        return buildError(HttpStatus.NOT_FOUND, assignmentNotFound.getMessage(), request);
+    }
+
     @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationException(
             org.springframework.web.bind.MethodArgumentNotValidException ex,

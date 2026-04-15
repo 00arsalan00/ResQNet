@@ -39,15 +39,15 @@ public class AssignmentController {
     }
 
     @GetMapping("/incidents/{incidentId}/assignments")
-    public ResponseEntity<List<AssignmentResponseDTO>> getAssignmentsByIncidentId(
-            @PathVariable UUID incidentId) {
-        return ResponseEntity.ok(assignmentService.getAssignmentsByIncidentId(incidentId));
+    public ResponseEntity<Page<AssignmentResponseDTO>> getAssignmentsByIncidentId(
+            @PathVariable UUID incidentId,Pageable pageable) {
+        return ResponseEntity.ok(assignmentService.getAssignmentsByIncidentId(incidentId,pageable));
     }
 
     @GetMapping("/teams/{teamId}/assignments")
-    public ResponseEntity<List<AssignmentResponseDTO>> getAssignmentsByTeamId(
-            @PathVariable UUID teamId) {
-        return ResponseEntity.ok(assignmentService.getAssignmentsByTeamId(teamId));
+    public ResponseEntity<Page<AssignmentResponseDTO>> getAssignmentsByTeamId(
+            @PathVariable UUID teamId,Pageable pageable) {
+        return ResponseEntity.ok(assignmentService.getAssignmentsByTeamId(teamId,pageable));
     }
 
 
