@@ -47,6 +47,4 @@ public class IncidentController {
         return ResponseEntity.noContent().build();
     }
 
-
-
 }

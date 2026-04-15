@@ -37,6 +37,10 @@ public class RescueTeam {
     @Column(nullable = false)
     private TeamStatus status;
 
+    @OneToMany(mappedBy = "rescueTeam")
+    private List<IncidentAssignment> assignments;
+
+
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "rescue_team_skills", joinColumns = @JoinColumn(name = "team_id"))
     @Enumerated(EnumType.STRING)

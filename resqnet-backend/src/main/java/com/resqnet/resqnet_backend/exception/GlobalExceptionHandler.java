@@ -46,6 +46,22 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(TeamAlreadyAssignedToIncidentException.class)
+    public ResponseEntity<ApiError> handleTeamAlreadyAssignToIncident(
+            TeamAlreadyAssignedToIncidentException ex,
+            HttpServletRequest request
+    ){
+        return buildError(HttpStatus.CONFLICT, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(CapacityExceededException.class)
+    public ResponseEntity<ApiError> handleCapacityExceeded(
+            CapacityExceededException ex,
+            HttpServletRequest request
+    ){
+        return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
     @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationException(
             org.springframework.web.bind.MethodArgumentNotValidException ex,

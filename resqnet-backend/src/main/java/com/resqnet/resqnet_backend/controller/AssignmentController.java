@@ -1,0 +1,69 @@
+package com.resqnet.resqnet_backend.controller;
+
+import com.resqnet.resqnet_backend.dto.AssignmentRequestDTO;
+import com.resqnet.resqnet_backend.dto.AssignmentResponseDTO;
+import com.resqnet.resqnet_backend.entity.IncidentAssignment;
+import com.resqnet.resqnet_backend.service.AssignmentService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController("/api/admin")
+@RequiredArgsConstructor
+public class AssignmentController {
+    private final AssignmentService assignmentService;
+
+    @PostMapping("/{incidentId}/assign/{teamId}")
+    public ResponseEntity<IncidentAssignment> assign(
+            @PathVariable UUID incidentId,
+            @PathVariable UUID teamId
+    ) {
+        IncidentAssignment incidentAssignment = assignmentService.assignTeam(incidentId, teamId);
+        return ResponseEntity.status(201).body(incidentAssignment);
+    }
+
+    @GetMapping("/assignments")
+    public ResponseEntity<Page<AssignmentResponseDTO>> getAllAssignments(Pageable pageable) {
+        return ResponseEntity.ok(assignmentService.getAllAssignments(pageable));
+    }
+
+    @GetMapping("/assignments/{assignmentId}")
+    public ResponseEntity<AssignmentResponseDTO> getAssignmentById(@PathVariable UUID assignmentId) {
+        return ResponseEntity.ok(assignmentService.getAssignmentById(assignmentId));
+    }
+
+    @GetMapping("/incidents/{incidentId}/assignments")
+    public ResponseEntity<List<AssignmentResponseDTO>> getAssignmentsByIncidentId(
+            @PathVariable UUID incidentId) {
+        return ResponseEntity.ok(assignmentService.getAssignmentsByIncidentId(incidentId));
+    }
+
+    @GetMapping("/teams/{teamId}/assignments")
+    public ResponseEntity<List<AssignmentResponseDTO>> getAssignmentsByTeamId(
+            @PathVariable UUID teamId) {
+        return ResponseEntity.ok(assignmentService.getAssignmentsByTeamId(teamId));
+    }
+
+
+    @PutMapping("/assignments/{assignmentId}")
+    public ResponseEntity<AssignmentResponseDTO> updateAssignment(
+            @PathVariable UUID assignmentId,
+            @Valid @RequestBody AssignmentRequestDTO request) {
+        return ResponseEntity.ok(assignmentService.updateAssignment(assignmentId, request));
+    }
+
+    @DeleteMapping("/assignments/{assignmentId}")
+    public ResponseEntity<Void> deleteAssignment(@PathVariable UUID assignmentId) {
+        assignmentService.deleteAssignment(assignmentId);
+        return ResponseEntity.noContent().build();
+    }
+
+
+
+}

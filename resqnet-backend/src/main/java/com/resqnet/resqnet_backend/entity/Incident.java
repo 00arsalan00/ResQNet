@@ -34,14 +34,8 @@ public class Incident {
     @Column(nullable = false)
     private String reporter;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "incident_rescue_team",
-            joinColumns = @JoinColumn(name = "incident_id"),
-            inverseJoinColumns = @JoinColumn(name = "team_id")
-    )
-    @Builder.Default
-    private List<RescueTeam> rescueTeams = new ArrayList<>();
+    @OneToMany(mappedBy = "incident")
+    private List<IncidentAssignment> assignments;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
