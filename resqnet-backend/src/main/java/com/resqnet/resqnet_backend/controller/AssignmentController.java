@@ -51,7 +51,7 @@ public class AssignmentController {
     }
 
 
-    @PutMapping("/assignments/{assignmentId}")
+    @PutMapping("/assignments/{assignmentId}/status")
     public ResponseEntity<AssignmentResponseDTO> updateAssignment(
             @PathVariable UUID assignmentId,
             @Valid @RequestBody AssignmentRequestDTO request) {

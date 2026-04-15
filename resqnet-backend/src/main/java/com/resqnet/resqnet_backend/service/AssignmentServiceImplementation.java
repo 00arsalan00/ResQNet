@@ -121,7 +121,10 @@ public class AssignmentServiceImplementation implements AssignmentService {
 
         assignment.setIncident(incident);
         assignment.setRescueTeam(team);
-        assignment.setStatus(request.getStatus());
+        AssignmentStatus current = assignment.getStatus();
+        AssignmentStatus next = request.getStatus();
+        validateStatusTransition(current, next);
+        assignment.setStatus(next);
 
         return assignmentMapper.toResponse(assignmentRepository.save(assignment));
     }
@@ -134,6 +137,20 @@ public class AssignmentServiceImplementation implements AssignmentService {
         assignmentRepository.delete(assignment);
     }
 
+    private void validateStatusTransition(AssignmentStatus current, AssignmentStatus next){
 
+        if(current == AssignmentStatus.ASSIGNED &&  next == AssignmentStatus.IN_PROGRESS){
+            return;
+        }
+
+        if(current == AssignmentStatus.IN_PROGRESS && next == AssignmentStatus.COMPLETED){
+            return;
+        }
+
+        throw new InvalidStatusTransitionException(
+                "Cannot change status from "+ current + " to "+ next
+        );
+
+    }
 
 }

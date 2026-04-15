@@ -70,6 +70,14 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.NOT_FOUND, assignmentNotFound.getMessage(), request);
     }
 
+    @ExceptionHandler(InvalidStatusTransitionException.class)
+    public ResponseEntity<ApiError> handleInvalidStatusTransition(
+            InvalidStatusTransitionException ex,
+            HttpServletRequest request
+    ){
+        return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
     @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationException(
             org.springframework.web.bind.MethodArgumentNotValidException ex,
