@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-@RestController("/api/admin")
+@RestController
+@RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class AssignmentController {
     private final AssignmentService assignmentService;
