@@ -1,27 +1,21 @@
 package com.resqnet.resqnet_backend.service;
 
-import com.resqnet.resqnet_backend.dto.IncidentResponseDTO;
 import com.resqnet.resqnet_backend.dto.RescueTeamRequestDTO;
 import com.resqnet.resqnet_backend.dto.RescueTeamResponseDTO;
 import com.resqnet.resqnet_backend.entity.RescueTeam;
 import com.resqnet.resqnet_backend.entity.SkillType;
-import com.resqnet.resqnet_backend.entity.TeamStatus;
 import com.resqnet.resqnet_backend.exception.RescueTeamNotFoundException;
 import com.resqnet.resqnet_backend.mapper.RescueTeamMapper;
 import com.resqnet.resqnet_backend.repository.RescueTeamRepository;
-import org.hibernate.query.Page;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,14 +29,10 @@ class RescueTeamServiceImplementationTest {
     private  RescueTeamRepository rescueTeamRepository;
     @Mock
     private  RescueTeamMapper rescueTeamMapper;
-    @Mock
-    private  GeometryFactory geometryFactory;
+
     @InjectMocks
     private RescueTeamServiceImplementation rescueTeamService;
 
-    private RescueTeam rescueTeam;
-    private RescueTeamResponseDTO  response;
-    private RescueTeamRequestDTO request;
 
     @Test
     void createRescueTeam(){
