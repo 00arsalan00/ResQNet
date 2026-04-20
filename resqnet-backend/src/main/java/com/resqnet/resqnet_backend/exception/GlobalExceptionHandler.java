@@ -109,6 +109,14 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.BAD_REQUEST, message, request);
     }
 
+    @ExceptionHandler(CampNotFoundException.class)
+    public ResponseEntity<ApiError> handleCampNotFound(
+            CampNotFoundException ex,
+            HttpServletRequest request
+    ){
+        return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
+
     private ResponseEntity<ApiError> buildError(HttpStatus status,
                                                 String message,
                                                 HttpServletRequest request) {

@@ -3,6 +3,8 @@ package com.resqnet.resqnet_backend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.locationtech.jts.geom.Point;
+
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -30,6 +32,10 @@ public class ReliefCamp {
     @Column(nullable = false, columnDefinition = "geometry(Point, 4326)")
     private Point location;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CampStatus status;
+
     @ManyToMany(mappedBy = "reliefCamps", fetch = FetchType.LAZY)
     @Builder.Default
     private List<Incident> incidents = new ArrayList<>();
@@ -38,7 +44,18 @@ public class ReliefCamp {
     @Builder.Default
     private List<Resource> resources = new ArrayList<>();
 
-    @OneToMany(mappedBy = "reliefCamp", fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<Volunteer> volunteers = new ArrayList<>();
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+        if (this.occupancy == null) this.occupancy = 0;
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }
