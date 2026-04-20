@@ -17,7 +17,9 @@ public interface IncidentService {
 
     IncidentResponseDTO register(IncidentRequestDTO request);
 
-    IncidentResponseDTO update(UUID id, @Valid IncidentRequestDTO request);
-
     void deleteIncident(UUID id);
+
+    IncidentResponseDTO updatePublic(UUID id, @Valid IncidentRequestDTO request);
+
+    IncidentResponseDTO updateAdmin(UUID id, @Valid IncidentRequestDTO request);
 }

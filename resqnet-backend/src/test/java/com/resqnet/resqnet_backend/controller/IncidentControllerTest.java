@@ -12,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
 import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -22,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(IncidentController.class)
 class IncidentControllerTest {
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -48,7 +50,9 @@ class IncidentControllerTest {
                 new PageImpl<>(List.of(IncidentResponseDTO.builder().build()));
 
         when(incidentService.getAllIncidents(any())).thenReturn(page);
-        mockMvc.perform(get("/api/incidents")).andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/incidents"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -74,14 +78,12 @@ class IncidentControllerTest {
     }
 
     @Test
-    void deleteIncident_success() throws Exception {
+    void deleteIncident_adminOnly() throws Exception {
         UUID id = UUID.randomUUID();
 
-        mockMvc.perform(delete("/api/incidents/{id}", id)).andExpect(status().isNoContent());
+        mockMvc.perform(delete("/api/admin/incidents/{id}", id))
+                .andExpect(status().isNoContent());
 
         verify(incidentService).deleteIncident(id);
     }
-
-
 }
-

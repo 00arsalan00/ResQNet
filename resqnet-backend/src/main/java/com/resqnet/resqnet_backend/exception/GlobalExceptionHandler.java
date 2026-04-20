@@ -78,6 +78,22 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(VolunteerNotFoundException.class)
+    public ResponseEntity<ApiError> handleVolunteerNotFound(
+            VolunteerNotFoundException ex,
+            HttpServletRequest request
+    ){
+        return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(VolunteerAlreadyAssignedToIncidentException.class)
+    public ResponseEntity<ApiError> handleVolunteerAlreadyAssignedToIncident(
+            VolunteerAlreadyAssignedToIncidentException ex,
+            HttpServletRequest request
+    ){
+        return buildError(HttpStatus.CONFLICT, ex.getMessage(), request);
+    }
+
     @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationException(
             org.springframework.web.bind.MethodArgumentNotValidException ex,

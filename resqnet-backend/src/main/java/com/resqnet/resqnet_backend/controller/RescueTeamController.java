@@ -9,15 +9,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/teams")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class RescueTeamController {
+
     private final RescueTeamService rescueTeamService;
 
-    @GetMapping
+    @GetMapping("/teams")
     public ResponseEntity<?> getTeams(
             @RequestParam(required = false) UUID id,
             @RequestParam(required = false) String name,
@@ -39,19 +41,18 @@ public class RescueTeamController {
         return ResponseEntity.ok(rescueTeamService.getAllTeams(pageable));
     }
 
-    @PostMapping
+    @PostMapping("/admin/teams")
     public ResponseEntity<RescueTeamResponseDTO> registerTeam(@Valid @RequestBody RescueTeamRequestDTO request) {
-        RescueTeamResponseDTO response = rescueTeamService.registerTeam(request);
-        return ResponseEntity.status(201).body(response);
+        return ResponseEntity.status(201).body(rescueTeamService.registerTeam(request));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<RescueTeamResponseDTO> updateTeam(@PathVariable UUID id, @Valid @RequestBody RescueTeamRequestDTO request) {
-        RescueTeamResponseDTO response = rescueTeamService.updateTeam(id,request);
-        return ResponseEntity.ok(response);
+    @PutMapping("/admin/teams/{id}")
+    public ResponseEntity<RescueTeamResponseDTO> updateTeam(@PathVariable UUID id,
+                                                            @Valid @RequestBody RescueTeamRequestDTO request) {
+        return ResponseEntity.ok(rescueTeamService.updateTeam(id, request));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/admin/teams/{id}")
     public ResponseEntity<Void> deleteTeam(@PathVariable UUID id) {
         rescueTeamService.deleteTeam(id);
         return ResponseEntity.noContent().build();

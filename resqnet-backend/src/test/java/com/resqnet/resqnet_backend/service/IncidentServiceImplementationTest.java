@@ -16,18 +16,20 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-
 @ExtendWith(MockitoExtension.class)
-public class IncidentServiceImplTest {
+public class IncidentServiceImplementationTest {
 
     @Mock
     private IncidentRepository incidentRepository;
+
     @Mock
     private IncidentMapper incidentMapper;
-    @InjectMocks
-    private IncidentServiceImplementation incidentService;
+
     @Mock
     private GeometryFactory geometryFactory;
+
+    @InjectMocks
+    private IncidentServiceImplementation incidentService;
 
     @Test
     void shouldRegisterIncident() {
@@ -44,12 +46,11 @@ public class IncidentServiceImplTest {
 
         when(incidentMapper.toEntity(request, geometryFactory)).thenReturn(incident);
         when(incidentRepository.save(incident)).thenReturn(savedIncident);
-        when(incidentMapper.toResponse(any())).thenReturn(response);
+        when(incidentMapper.toResponse(savedIncident)).thenReturn(response);
 
         IncidentResponseDTO result = incidentService.register(request);
 
         assertNotNull(result);
         verify(incidentRepository, times(1)).save(incident);
-
     }
 }

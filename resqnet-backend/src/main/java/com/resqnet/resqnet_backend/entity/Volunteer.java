@@ -23,7 +23,10 @@ public class Volunteer {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, columnDefinition = "geometry(Point, 4326)")
+    @Column(nullable = false)
+    private String contactInfo;
+
+    @Column(columnDefinition = "geometry(Point, 4326)")
     private Point location;
 
     @Column(nullable = false)
@@ -37,13 +40,11 @@ public class Volunteer {
     @Enumerated(EnumType.STRING)
     @Column(name = "skill")
     @Builder.Default
-    private List<SkillType> skills = new ArrayList<>();
+    private Set<SkillType> skills = new HashSet<>();
 
-    @ManyToMany(mappedBy = "volunteers", fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<Incident> incidents = new ArrayList<>();
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private VolunteerStatus status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "camp_id")
-    private ReliefCamp reliefCamp;
+
 }

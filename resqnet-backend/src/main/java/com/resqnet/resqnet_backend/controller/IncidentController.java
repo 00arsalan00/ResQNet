@@ -9,42 +9,51 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/incidents")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class IncidentController {
+
     private final IncidentService incidentService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<IncidentResponseDTO> getIncident(@PathVariable UUID id){
-        IncidentResponseDTO response = incidentService.getById(id);
-        return ResponseEntity.ok(response);
+    @GetMapping("/incidents/{id}")
+    public ResponseEntity<IncidentResponseDTO> getIncident(@PathVariable UUID id) {
+        return ResponseEntity.ok(incidentService.getById(id));
     }
 
-    @GetMapping
-    public ResponseEntity<Page<IncidentResponseDTO>> getAllIncidents(Pageable pageable){
-        Page<IncidentResponseDTO> response = incidentService.getAllIncidents(pageable);
-        return ResponseEntity.ok(response);
+    @GetMapping("/incidents")
+    public ResponseEntity<Page<IncidentResponseDTO>> getAllIncidents(Pageable pageable) {
+        return ResponseEntity.ok(incidentService.getAllIncidents(pageable));
     }
 
-    @PostMapping
-    public  ResponseEntity<IncidentResponseDTO> registerIncident(@Valid @RequestBody IncidentRequestDTO request){
-        IncidentResponseDTO response = incidentService.register(request);
-        return ResponseEntity.status(201).body(response);
+    @PostMapping("/incidents")
+    public ResponseEntity<IncidentResponseDTO> registerIncident(@Valid @RequestBody IncidentRequestDTO request) {
+        return ResponseEntity.status(201).body(incidentService.register(request));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<IncidentResponseDTO> updateIncident(@PathVariable UUID id, @Valid @RequestBody IncidentRequestDTO request){
-        IncidentResponseDTO response = incidentService.update(id,request);
-        return ResponseEntity.ok(response);
+    @PutMapping("/incidents/{id}")
+    public ResponseEntity<IncidentResponseDTO> updateIncident(@PathVariable UUID id,
+                                                              @Valid @RequestBody IncidentRequestDTO request) {
+        return ResponseEntity.ok(incidentService.updatePublic(id, request));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<IncidentResponseDTO> deleteIncident(@PathVariable UUID id){
+    @GetMapping("/admin/incidents")
+    public ResponseEntity<Page<IncidentResponseDTO>> getAllIncidentsAdmin(Pageable pageable) {
+        return ResponseEntity.ok(incidentService.getAllIncidents(pageable));
+    }
+
+    @PutMapping("/admin/incidents/{id}")
+    public ResponseEntity<IncidentResponseDTO> updateIncidentAdmin(@PathVariable UUID id,
+                                                                   @Valid @RequestBody IncidentRequestDTO request) {
+        return ResponseEntity.ok(incidentService.updateAdmin(id, request));
+    }
+
+    @DeleteMapping("/admin/incidents/{id}")
+    public ResponseEntity<Void> deleteIncident(@PathVariable UUID id) {
         incidentService.deleteIncident(id);
         return ResponseEntity.noContent().build();
     }
-
 }
