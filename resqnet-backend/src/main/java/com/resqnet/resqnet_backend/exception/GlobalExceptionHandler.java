@@ -117,6 +117,14 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(InvalidOperationException.class)
+    public ResponseEntity<ApiError> handleInvalidOperation(
+            InvalidOperationException ex,
+            HttpServletRequest request
+    ){
+        return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
     private ResponseEntity<ApiError> buildError(HttpStatus status,
                                                 String message,
                                                 HttpServletRequest request) {

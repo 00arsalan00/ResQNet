@@ -19,7 +19,4 @@ public interface ReliefCampRepository extends JpaRepository<ReliefCamp, UUID> {
        """)
     Page<ReliefCamp> findAvailableCamps(Pageable pageable);
 
-    long countByStatus(CampStatus status);
-
-    boolean existsById(UUID id);
 }
