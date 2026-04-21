@@ -7,12 +7,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(
-        name = "incident_resources",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"incident_id", "resource_id"})
-        }
-)
+@Table(name = "incident_resources")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,17 +19,35 @@ public class IncidentResource {
     @GeneratedValue
     private UUID id;
 
-    @Column(nullable = false)
-    private Integer quantityUsed;
-
-    @Column(nullable = false)
-    private LocalDateTime allocatedAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "resource_id", nullable = false)
+    private Resource resource;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "incident_id", nullable = false)
     private Incident incident;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "resource_id", nullable = false)
-    private Resource resource;
+    @JoinColumn(name = "camp_id")
+    private ReliefCamp reliefCamp;
+
+    // 🔹 Quantity allocated
+    @Column(nullable = false)
+    private Integer quantityAllocated;
+
+    @Column(nullable = false)
+    private Integer quantityUsed;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private IncidentResourceStatus status;
+
+    private LocalDateTime allocatedAt;
+    private LocalDateTime usedAt;
+
+    @PrePersist
+    void onCreate() {
+        this.allocatedAt = LocalDateTime.now();
+        if (this.quantityUsed == null) this.quantityUsed = 0;
+    }
 }

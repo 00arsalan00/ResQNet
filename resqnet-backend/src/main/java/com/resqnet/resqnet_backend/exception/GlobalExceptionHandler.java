@@ -125,6 +125,22 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiError> handleResourceNotFound(
+            ResourceNotFoundException ex,
+            HttpServletRequest request
+    ){
+        return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(ResourceUnavailableException.class)
+    public ResponseEntity<ApiError> handleResourceUnavailable(
+            ResourceUnavailableException ex,
+            HttpServletRequest request
+    ){
+        return buildError(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage(), request);
+    }
+
     private ResponseEntity<ApiError> buildError(HttpStatus status,
                                                 String message,
                                                 HttpServletRequest request) {
