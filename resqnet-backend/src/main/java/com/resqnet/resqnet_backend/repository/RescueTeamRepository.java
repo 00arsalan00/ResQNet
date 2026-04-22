@@ -4,12 +4,14 @@ import com.resqnet.resqnet_backend.entity.RescueTeam;
 import com.resqnet.resqnet_backend.entity.SkillType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface RescueTeamRepository extends JpaRepository<RescueTeam, UUID> {
-    Optional<RescueTeam> findByName(String teamName);
+    Optional<RescueTeam> findByTeamName(String teamName);
 
-    Optional<RescueTeam> findBySkill(SkillType skill);
+    List<RescueTeam> findBySkillsContaining(SkillType skill);
 }

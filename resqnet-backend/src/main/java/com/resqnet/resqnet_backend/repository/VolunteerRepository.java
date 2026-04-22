@@ -11,6 +11,4 @@ public interface VolunteerRepository extends JpaRepository<Volunteer, UUID> {
     Page<Volunteer> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
     Page<Volunteer> findBySkillsContaining(SkillType skill, Pageable pageable);
-
-    boolean existsByIncidentIdAndVolunteerId(UUID incidentId, UUID volunteerId);
 }

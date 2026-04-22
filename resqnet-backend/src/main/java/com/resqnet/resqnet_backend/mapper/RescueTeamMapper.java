@@ -24,6 +24,8 @@ public class RescueTeamMapper {
             latitude = rescueTeam.getLocation().getY();
         }
 
+
+
         return RescueTeamResponseDTO.builder()
                 .id(rescueTeam.getId())
                 .teamName(rescueTeam.getTeamName())
@@ -46,7 +48,10 @@ public class RescueTeamMapper {
             point = geometryFactory.createPoint(
                     new Coordinate(request.getLongitude(), request.getLatitude())
             );
+            point.setSRID(4326);
         }
+
+
 
         return RescueTeam.builder()
                 .teamName(request.getTeamName())

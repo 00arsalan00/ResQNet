@@ -41,7 +41,7 @@ class VolunteerAssignmentServiceTest {
 
         when(volunteerRepository.findById(volunteerId)).thenReturn(Optional.of(volunteer));
         when(incidentRepository.findById(incidentId)).thenReturn(Optional.of(incident));
-        when(assignmentRepository.existsByIncidentIdAndVolunteerId(incidentId, volunteerId))
+        when(assignmentRepository.existsByIncident_IdAndVolunteer_Id(incidentId, volunteerId))
                 .thenReturn(false);
 
         VolunteerAssignment saved = new VolunteerAssignment();
@@ -63,7 +63,7 @@ class VolunteerAssignmentServiceTest {
 
         when(volunteerRepository.findById(volunteerId)).thenReturn(Optional.of(volunteer));
         when(incidentRepository.findById(incidentId)).thenReturn(Optional.of(new Incident()));
-        when(assignmentRepository.existsByIncidentIdAndVolunteerId(incidentId, volunteerId))
+        when(assignmentRepository.existsByIncident_IdAndVolunteer_Id(incidentId, volunteerId))
                 .thenReturn(true);
 
         assertThrows(VolunteerAlreadyAssignedToIncidentException.class,

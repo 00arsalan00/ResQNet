@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -40,18 +41,25 @@ public class RescueTeamServiceImplementation implements RescueTeamService {
 
     @Override
     public RescueTeamResponseDTO getByName(String name) {
-        RescueTeam rescueTeam = rescueTeamRepository.findByName(name)
+
+        RescueTeam rescueTeam = rescueTeamRepository.findByTeamName(name)
                 .orElseThrow(() -> new RescueTeamNotFoundException("Rescue Team Not Found"));
 
         return rescueTeamMapper.toResponse(rescueTeam);
     }
 
     @Override
-    public RescueTeamResponseDTO getBySkill(SkillType skill) {
-        RescueTeam rescueTeam = rescueTeamRepository.findBySkill(skill)
-                .orElseThrow(()-> new RescueTeamNotFoundException("Rescue Team Not Found"));
+    public List<RescueTeamResponseDTO> getBySkill(SkillType skill) {
 
-        return rescueTeamMapper.toResponse(rescueTeam);
+        List<RescueTeam> teams = rescueTeamRepository.findBySkillsContaining(skill);
+
+        if (teams.isEmpty()) {
+            throw new RescueTeamNotFoundException("No Rescue Team found for skill: " + skill);
+        }
+
+        return teams.stream()
+                .map(rescueTeamMapper::toResponse)
+                .toList();
     }
 
     @Override

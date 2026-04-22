@@ -4,6 +4,7 @@ import com.resqnet.resqnet_backend.dto.RescueTeamRequestDTO;
 import com.resqnet.resqnet_backend.dto.RescueTeamResponseDTO;
 import com.resqnet.resqnet_backend.entity.RescueTeam;
 import com.resqnet.resqnet_backend.entity.SkillType;
+import com.resqnet.resqnet_backend.exception.RescueTeamNotFoundException;
 import com.resqnet.resqnet_backend.mapper.RescueTeamMapper;
 import com.resqnet.resqnet_backend.repository.RescueTeamRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -18,8 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,16 +83,36 @@ class RescueTeamServiceImplementationTest {
     void getRescueTeamBySkill() {
         SkillType skill = SkillType.RESCUE;
 
-        RescueTeam rescueTeam = new RescueTeam();
+        RescueTeam team1 = new RescueTeam();
+        RescueTeam team2 = new RescueTeam();
+
+        List<RescueTeam> teams = List.of(team1, team2);
+
         RescueTeamResponseDTO response = RescueTeamResponseDTO.builder().build();
 
-        when(rescueTeamRepository.findBySkill(skill)).thenReturn(Optional.of(rescueTeam));
-        when(rescueTeamMapper.toResponse(any())).thenReturn(response);
+        when(rescueTeamRepository.findBySkillsContaining(skill))
+                .thenReturn(teams);
 
-        RescueTeamResponseDTO result = rescueTeamService.getBySkill(skill);
+        when(rescueTeamMapper.toResponse(any()))
+                .thenReturn(response);
+
+        List<RescueTeamResponseDTO> result = rescueTeamService.getBySkill(skill);
 
         assertNotNull(result);
-        verify(rescueTeamRepository).findBySkill(skill);
+        assertEquals(2, result.size());
+
+        verify(rescueTeamRepository).findBySkillsContaining(skill);
+    }
+
+    @Test
+    void getRescueTeamBySkill_notFound() {
+        SkillType skill = SkillType.RESCUE;
+
+        when(rescueTeamRepository.findBySkillsContaining(skill))
+                .thenReturn(List.of());
+
+        assertThrows(RescueTeamNotFoundException.class,
+                () -> rescueTeamService.getBySkill(skill));
     }
 
     @Test

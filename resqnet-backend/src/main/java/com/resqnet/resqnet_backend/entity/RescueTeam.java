@@ -2,8 +2,12 @@ package com.resqnet.resqnet_backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.locationtech.jts.geom.Point;
 import java.util.*;
+
+
 
 @Entity
 @Table(name = "rescue_teams")
@@ -30,6 +34,7 @@ public class RescueTeam {
     @Column(nullable = false)
     private Integer capacity;
 
+    @JdbcTypeCode(SqlTypes.GEOMETRY)
     @Column(columnDefinition = "geometry(Point, 4326)")
     private Point location;
 
@@ -37,9 +42,9 @@ public class RescueTeam {
     @Column(nullable = false)
     private TeamStatus status;
 
-    @OneToMany(mappedBy = "rescueTeam")
-    private List<IncidentAssignment> assignments;
-
+    @OneToMany(mappedBy = "rescueTeam", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<IncidentAssignment> assignments = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "rescue_team_skills", joinColumns = @JoinColumn(name = "team_id"))
@@ -47,5 +52,4 @@ public class RescueTeam {
     @Column(name = "skill")
     @Builder.Default
     private List<SkillType> skills = new ArrayList<>();
-
 }

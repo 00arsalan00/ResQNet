@@ -31,7 +31,7 @@ public class VolunteerAssignmentServiceImplementation implements VolunteerAssign
                 .orElseThrow(() -> new IncidentNotFoundException("Incident not found"));
 
         boolean exists = volunteerAssignmentRepository
-                .existsByIncidentIdAndVolunteerId(incidentId, volunteerId);
+                .existsByIncident_IdAndVolunteer_Id(incidentId, volunteerId);
 
         if (exists) {
             throw new VolunteerAlreadyAssignedToIncidentException(

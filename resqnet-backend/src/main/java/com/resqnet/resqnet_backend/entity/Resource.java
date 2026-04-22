@@ -37,6 +37,15 @@ public class Resource {
     @Builder.Default
     private List<IncidentResource> incidentResources = new ArrayList<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "camp_resources",
+            joinColumns = @JoinColumn(name = "resource_id"),
+            inverseJoinColumns = @JoinColumn(name = "camp_id")
+    )
+    @Builder.Default
+    private List<ReliefCamp> reliefCamps = new ArrayList<>();
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

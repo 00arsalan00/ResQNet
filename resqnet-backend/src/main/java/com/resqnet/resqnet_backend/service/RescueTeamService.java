@@ -6,6 +6,8 @@ import com.resqnet.resqnet_backend.entity.SkillType;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 import java.util.UUID;
 
 public interface RescueTeamService {
@@ -16,7 +18,7 @@ public interface RescueTeamService {
 
     RescueTeamResponseDTO getByName(String name);
 
-    RescueTeamResponseDTO getBySkill(SkillType skill);
+    List<RescueTeamResponseDTO> getBySkill(SkillType skill);
 
     RescueTeamResponseDTO registerTeam(RescueTeamRequestDTO request);
 
