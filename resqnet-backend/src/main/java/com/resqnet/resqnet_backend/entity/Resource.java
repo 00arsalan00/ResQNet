@@ -37,14 +37,17 @@ public class Resource {
     @Builder.Default
     private List<IncidentResource> incidentResources = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "camp_resources",
-            joinColumns = @JoinColumn(name = "resource_id"),
-            inverseJoinColumns = @JoinColumn(name = "camp_id")
-    )
+    /**
+     * One-to-many relationship to resource assignments for relief camps.
+     * Use this instead of the deprecated camp_resources junction table.
+     * 
+     * ResourceAssignment provides rich stateful tracking including quantity,
+     * status, and assignment timestamps, making it the proper entity for
+     * resource allocation to camps.
+     */
+    @OneToMany(mappedBy = "resource")
     @Builder.Default
-    private List<ReliefCamp> reliefCamps = new ArrayList<>();
+    private List<ResourceAssignment> resourceAssignments = new ArrayList<>();
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
