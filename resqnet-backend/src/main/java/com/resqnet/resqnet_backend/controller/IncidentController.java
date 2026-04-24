@@ -40,11 +40,6 @@ public class IncidentController {
         return ResponseEntity.ok(incidentService.updatePublic(id, request));
     }
 
-    @GetMapping("/admin/incidents")
-    public ResponseEntity<Page<IncidentResponseDTO>> getAllIncidentsAdmin(Pageable pageable) {
-        return ResponseEntity.ok(incidentService.getAllIncidents(pageable));
-    }
-
     @PutMapping("/admin/incidents/{id}")
     public ResponseEntity<IncidentResponseDTO> updateIncidentAdmin(@PathVariable UUID id,
                                                                    @Valid @RequestBody IncidentRequestDTO request) {

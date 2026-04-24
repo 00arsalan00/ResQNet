@@ -17,7 +17,6 @@ public class IncidentRequestDTO {
     @NotNull
     private Integer severity;
 
-    private IncidentStatus status;
     @NotNull
     private String reporter;
     @NotNull

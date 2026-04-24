@@ -3,6 +3,7 @@ package com.resqnet.resqnet_backend.controller;
 import com.resqnet.resqnet_backend.dto.AssignmentRequestDTO;
 import com.resqnet.resqnet_backend.dto.AssignmentResponseDTO;
 import com.resqnet.resqnet_backend.entity.IncidentAssignment;
+import com.resqnet.resqnet_backend.mapper.AssignmentMapper;
 import com.resqnet.resqnet_backend.service.AssignmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,14 +20,16 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AssignmentController {
     private final AssignmentService assignmentService;
+    private final AssignmentMapper assignmentMapper;
 
     @PostMapping("/{incidentId}/assign/{teamId}")
-    public ResponseEntity<IncidentAssignment> assign(
+    public ResponseEntity<AssignmentResponseDTO> assign(
             @PathVariable UUID incidentId,
             @PathVariable UUID teamId
     ) {
-        IncidentAssignment incidentAssignment = assignmentService.assignTeam(incidentId, teamId);
-        return ResponseEntity.status(201).body(incidentAssignment);
+        IncidentAssignment assignment = assignmentService.assignTeam(incidentId, teamId);
+        return ResponseEntity.status(201)
+                .body(assignmentMapper.toResponse(assignment));
     }
 
     @GetMapping("/assignments")
