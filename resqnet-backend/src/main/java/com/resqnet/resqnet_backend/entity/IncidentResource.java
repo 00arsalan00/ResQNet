@@ -27,11 +27,24 @@ public class IncidentResource {
     @JoinColumn(name = "incident_id", nullable = false)
     private Incident incident;
 
+    /**
+     * Optional reference to the relief camp where this resource is allocated.
+     * 
+     * Semantics:
+     * - If null: Resource is allocated at the incident level (strategic/general allocation).
+     *   Used for resources not yet committed to a specific camp, or those managed
+     *   incident-wide across all camps.
+     * 
+     * - If not null: Resource is tied to a specific relief camp (tactical/camp-specific allocation).
+     *   This represents a concrete assignment of resources to a particular camp's operations.
+     * 
+     * This design supports both incident-wide and camp-specific resource tracking
+     * within the same allocation framework.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "camp_id")
     private ReliefCamp reliefCamp;
 
-    // 🔹 Quantity allocated
     @Column(nullable = false)
     private Integer quantityAllocated;
 
