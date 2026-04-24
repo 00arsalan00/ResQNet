@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Table(
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"incident_id", "team_id"})
+                @UniqueConstraint(columnNames = {"incident_id", "rescue_team_id"})
         }
 )
 @Getter
@@ -23,11 +23,11 @@ public class IncidentAssignment {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "incident_table",nullable=false)
+    @JoinColumn(name = "incident_id",nullable=false)
     private Incident incident;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rescueTeam_table",nullable=false)
+    @JoinColumn(name = "rescue_team_id",nullable=false)
     private  RescueTeam rescueTeam;
 
     @Enumerated(EnumType.STRING)
@@ -39,6 +39,5 @@ public class IncidentAssignment {
     void prePersist() {
         this.assignedAt = LocalDateTime.now();
     }
-
 
 }
