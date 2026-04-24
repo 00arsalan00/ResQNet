@@ -26,7 +26,7 @@ public class ResourceMapper {
         return ResourceResponseDTO.builder()
                 .id(resource.getId())
                 .type(resource.getType())
-                .totalQuantity(resource.getTotalQuantity())
+                .quantity(resource.getTotalQuantity())
                 .availableQuantity(resource.getAvailableQuantity())
                 .latitude(latitude)
                 .longitude(longitude)
@@ -55,6 +55,7 @@ public class ResourceMapper {
 
         resource.setType(request.getType());
         resource.setTotalQuantity(request.getQuantity());
+        resource.setAvailableQuantity(request.getAvailableQuantity());
 
         if (request.getLatitude() != null && request.getLongitude() != null) {
             Point point = geometryFactory.createPoint(

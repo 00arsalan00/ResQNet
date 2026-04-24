@@ -43,13 +43,7 @@ public class ResourceServiceImplementation implements ResourceService {
 
         Resource resource = getEntity(id);
 
-        resource.setType(request.getType());
-        resource.setTotalQuantity(request.getQuantity());
-
-        Point point = geometryFactory.createPoint(
-                new Coordinate(request.getLongitude(), request.getLatitude())
-        );
-        resource.setWarehouseLocation(point);
+        resourceMapper.updateEntity(resource, request);
 
         return resourceMapper.toResponse(resourceRepository.save(resource));
     }

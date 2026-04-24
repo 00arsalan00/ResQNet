@@ -14,7 +14,7 @@ public class ResourceResponseDTO {
 
     private ResourceType type;
 
-    private Integer totalQuantity;
+    private Integer quantity;
 
     private Integer availableQuantity;
 
