@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.*;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
 public class ReliefCampMapper {
@@ -24,6 +26,8 @@ public class ReliefCampMapper {
             latitude = camp.getLocation().getY();
         }
 
+        UUID incidentId = camp.getIncident() != null ? camp.getIncident().getId() : null;
+
         return ReliefCampResponseDTO.builder()
                 .id(camp.getId())
                 .name(camp.getName())
@@ -32,6 +36,7 @@ public class ReliefCampMapper {
                 .latitude(latitude)
                 .longitude(longitude)
                 .status(camp.getStatus())
+                .incidentId(incidentId)
                 .build();
     }
 

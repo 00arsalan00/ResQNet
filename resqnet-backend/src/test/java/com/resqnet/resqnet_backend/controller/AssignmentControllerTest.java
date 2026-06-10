@@ -5,6 +5,7 @@ import com.resqnet.resqnet_backend.dto.AssignmentRequestDTO;
 import com.resqnet.resqnet_backend.dto.AssignmentResponseDTO;
 import com.resqnet.resqnet_backend.entity.AssignmentStatus;
 import com.resqnet.resqnet_backend.entity.IncidentAssignment;
+import com.resqnet.resqnet_backend.mapper.AssignmentMapper;
 import com.resqnet.resqnet_backend.service.AssignmentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ class AssignmentControllerTest {
     @MockBean
     private AssignmentService assignmentService;
 
+    @MockBean
+    private AssignmentMapper assignmentMapper;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
@@ -46,6 +50,8 @@ class AssignmentControllerTest {
 
         when(assignmentService.assignTeam(incidentId, teamId))
                 .thenReturn(assignment);
+        when(assignmentMapper.toResponse(assignment))
+                .thenReturn(AssignmentResponseDTO.builder().build());
 
         mockMvc.perform(post("/api/admin/{incidentId}/assign/{teamId}",
                         incidentId, teamId))

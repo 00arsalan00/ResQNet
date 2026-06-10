@@ -6,7 +6,7 @@ import com.resqnet.resqnet_backend.entity.*;
 import com.resqnet.resqnet_backend.exception.*;
 import com.resqnet.resqnet_backend.mapper.AssignmentMapper;
 import com.resqnet.resqnet_backend.repository.*;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

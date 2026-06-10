@@ -7,8 +7,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Table(
+        name = "volunteer_assignments",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"incident_id", "team_id"})
+                @UniqueConstraint(columnNames = {"incident_id", "volunteer_id"})
         }
 )
 @Getter
@@ -23,11 +24,11 @@ public class VolunteerAssignment {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "incident_table",nullable=false)
+    @JoinColumn(name = "incident_id", nullable = false)
     private Incident incident;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "volunteer_id",nullable=false)
+    @JoinColumn(name = "volunteer_id", nullable = false)
     private Volunteer volunteer;
 
     @Enumerated(EnumType.STRING)

@@ -23,4 +23,6 @@ public class ReliefCampResponseDTO {
     private Double longitude;
 
     private CampStatus status;
+
+    private UUID incidentId;
 }

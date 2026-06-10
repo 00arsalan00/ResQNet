@@ -34,11 +34,11 @@ The system revolves around **Incident** as the central entity.
 
 ## 🔗 Key Relationships
 
-* Incident ↔ RescueTeam (Many-to-Many)
-* Incident ↔ Volunteer (Many-to-Many)
-* Incident → IncidentResource → Resource (One-to-Many mapping)
-* Incident ↔ ReliefCamp (Many-to-Many)
-* Volunteer → ReliefCamp (Many-to-One)
+* Incident ↔ RescueTeam via **IncidentAssignment** (assignment entity with status lifecycle)
+* Incident ↔ Volunteer via **VolunteerAssignment** (assignment entity with role and status)
+* Incident → **IncidentResource** → Resource (per-incident allocation; entity modeled, API planned)
+* Incident → ReliefCamp (Many-to-One on camp; link via `POST /api/camp-assignments/admin/incidents/{incidentId}/camps/{campId}`)
+* Resource ↔ ReliefCamp via **ResourceAssignment** and optional **camp_resources** join for inventory at camps
 
 ---
 
@@ -50,8 +50,8 @@ The system revolves around **Incident** as the central entity.
 | Database   | PostgreSQL                  |
 | Geospatial | PostGIS                     |
 | ORM        | Spring Data JPA (Hibernate) |
-| Migration  | Flyway                      |
-| API Docs   | OpenAPI / Swagger           |
+| Migration  | Flyway (dependency present; disabled — schema via Hibernate `ddl-auto: update`) |
+| API Docs   | Planned (OpenAPI/Swagger not yet wired) |
 | Build Tool | Maven                       |
 
 ---

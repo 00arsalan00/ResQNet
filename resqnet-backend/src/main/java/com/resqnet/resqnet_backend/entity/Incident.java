@@ -37,24 +37,6 @@ public class Incident {
     @OneToMany(mappedBy = "incident")
     private List<IncidentAssignment> assignments;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "incident_volunteer",
-            joinColumns = @JoinColumn(name = "incident_id"),
-            inverseJoinColumns = @JoinColumn(name = "volunteer_id")
-    )
-    @Builder.Default
-    private List<Volunteer> volunteers = new ArrayList<>();
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "incident_relief_camp",
-            joinColumns = @JoinColumn(name = "incident_id"),
-            inverseJoinColumns = @JoinColumn(name = "camp_id")
-    )
-    @Builder.Default
-    private List<ReliefCamp> reliefCamps = new ArrayList<>();
-
     @OneToMany(mappedBy = "incident", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<IncidentResource> incidentResources = new ArrayList<>();

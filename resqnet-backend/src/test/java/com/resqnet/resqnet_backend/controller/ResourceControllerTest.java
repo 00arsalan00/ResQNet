@@ -35,13 +35,14 @@ class ResourceControllerTest {
         ResourceRequestDTO request = new ResourceRequestDTO();
         request.setType(ResourceType.FOOD);
         request.setQuantity(100);
+        request.setAvailableQuantity(100);
         request.setLatitude(10.0);
         request.setLongitude(20.0);
 
         ResourceResponseDTO response = ResourceResponseDTO.builder()
                 .id(UUID.randomUUID())
                 .type(ResourceType.FOOD)
-                .totalQuantity(100)
+                .quantity(100)
                 .availableQuantity(100)
                 .latitude(10.0)
                 .longitude(20.0)

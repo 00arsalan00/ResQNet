@@ -43,4 +43,15 @@ class CampAssignmentControllerTest {
 
         Mockito.verify(service).releasePeople(campId, 5);
     }
+
+    @Test
+    void assignCampToIncident_success() throws Exception {
+        UUID incidentId = UUID.randomUUID();
+        UUID campId = UUID.randomUUID();
+
+        mockMvc.perform(post("/api/camp-assignments/admin/incidents/" + incidentId + "/camps/" + campId))
+                .andExpect(status().isOk());
+
+        Mockito.verify(service).assignCampToIncident(incidentId, campId);
+    }
 }

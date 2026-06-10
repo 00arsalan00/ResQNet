@@ -6,4 +6,6 @@ public interface CampAssignmentService {
     void assignPeople(UUID campId, int count);
 
     void releasePeople(UUID campId, int count);
+
+    void assignCampToIncident(UUID incidentId, UUID campId);
 }

@@ -23,6 +23,15 @@ public class CampAssignmentController {
         return ResponseEntity.ok("Assigned successfully");
     }
 
+    @PostMapping("/admin/incidents/{incidentId}/camps/{campId}")
+    public ResponseEntity<?> assignCampToIncident(
+            @PathVariable UUID incidentId,
+            @PathVariable UUID campId) {
+
+        campAssignmentService.assignCampToIncident(incidentId, campId);
+        return ResponseEntity.ok("Camp linked to incident");
+    }
+
     @PostMapping("/{campId}/release")
     public ResponseEntity<?> releasePeople(
             @PathVariable UUID campId,

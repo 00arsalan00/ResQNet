@@ -1,0 +1,957 @@
+{
+  "info": {
+    "_postman_id": "resqnet-phase1-api-tests",
+    "name": "ResQNet API Tests",
+    "description": "Complete API testing collection for ResQNet Phase 1 backend.\n\n**Setup**\n1. Start backend: `mvnw spring-boot:run` (port 8071)\n2. Set `DB_USERNAME` and `DB_PASSWORD` env vars\n3. Import this collection into Postman\n4. Run **Sample Flow** first (in order) — do NOT run Assignments until IDs exist\n\n**Important:** If you use the ResQNet Local environment, IDs are saved to BOTH collection and environment after each CREATE. URLs like `/api/admin//assign/` mean a variable is empty — run Sample Flow create steps first.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8071" },
+    { "key": "incidentId", "value": "" },
+    { "key": "teamId", "value": "" },
+    { "key": "volunteerId", "value": "" },
+    { "key": "campId", "value": "" },
+    { "key": "resourceId", "value": "" },
+    { "key": "teamAssignmentId", "value": "" },
+    { "key": "volunteerAssignmentId", "value": "" },
+    { "key": "resourceAssignmentId", "value": "" }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const resolved = pm.request.url.toString();",
+          "const path = resolved.replace(/^https?:\\/\\/[^/]+/, '');",
+          "const hasEmptySegment = /\\/\\//.test(path) || /\\/(incidents|volunteers|resources|camps|teams|assignments)\\/$/.test(path);",
+          "if (hasEmptySegment) {",
+          "    throw new Error(",
+          "        'Empty ID in URL: ' + path + '. Run Sample Flow create requests first (steps 1-8). ' +",
+          "        'If using an environment, re-run creates so incidentId/teamId/campId are populated.'",
+          "    );",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Sample Flow",
+      "description": "Run these requests in order for an end-to-end disaster response scenario.",
+      "item": [
+        {
+          "name": "1 - CreateIncident",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"FLOOD\",\n  \"severity\": 4,\n  \"reporter\": \"Citizen Hotline\",\n  \"latitude\": 28.6139,\n  \"longitude\": 77.2090\n}"
+            },
+            "url": "{{baseUrl}}/api/incidents"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Created incident', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('incidentId', body.id); pm.environment.set('incidentId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2 - RegisterTeam",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"teamName\": \"Alpha Rescue\",\n  \"captainName\": \"Rahul Sharma\",\n  \"contactInfo\": \"+91-9876543210\",\n  \"capacity\": 3,\n  \"skills\": [\"RESCUE\", \"MEDICAL\"],\n  \"status\": \"AVAILABLE\",\n  \"latitude\": 28.6200,\n  \"longitude\": 77.2100\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/teams"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Registered team', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('teamId', body.id); pm.environment.set('teamId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 - AssignTeam",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/{{incidentId}}/assign/{{teamId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Assigned team', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('teamAssignmentId', body.id); pm.environment.set('teamAssignmentId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4 - RegisterVolunteer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Priya Verma\",\n  \"contactInfo\": \"+91-9123456789\",\n  \"skills\": [\"MEDICAL\", \"LOGISTIC\"],\n  \"status\": \"AVAILABLE\",\n  \"latitude\": 28.6150,\n  \"longitude\": 77.2050,\n  \"availabilityStart\": \"2026-05-22T08:00:00\",\n  \"availabilityEnd\": \"2026-05-22T20:00:00\"\n}"
+            },
+            "url": "{{baseUrl}}/api/volunteers"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Registered volunteer', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('volunteerId', body.id); pm.environment.set('volunteerId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5 - AssignVolunteer",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/assignments/volunteers/incidents/{{incidentId}}/volunteers/{{volunteerId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Assigned volunteer', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('volunteerAssignmentId', body.id); pm.environment.set('volunteerAssignmentId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "6 - RegisterCamp",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sector 12 Relief Camp\",\n  \"capacity\": 500,\n  \"latitude\": 28.6100,\n  \"longitude\": 77.2150\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/camps"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Registered camp', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('campId', body.id); pm.environment.set('campId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7 - AssignCampToIncident",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/camp-assignments/admin/incidents/{{incidentId}}/camps/{{campId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Linked camp to incident', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "8 - CreateResource",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"WATER\",\n  \"quantity\": 1000,\n  \"availableQuantity\": 1000,\n  \"latitude\": 28.6120,\n  \"longitude\": 77.2080\n}"
+            },
+            "url": "{{baseUrl}}/api/resources"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Created resource', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('resourceId', body.id); pm.environment.set('resourceId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9 - AssignResourceToCamp",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/resource-assignments/resources/{{resourceId}}/camps/{{campId}}?quantity=200",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "resource-assignments", "resources", "{{resourceId}}", "camps", "{{campId}}"],
+              "query": [{ "key": "quantity", "value": "200" }]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Assigned resource to camp', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('resourceAssignmentId', body.id); pm.environment.set('resourceAssignmentId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10 - AssignPeopleToCamp",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/camp-assignments/{{campId}}/assign?count=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "camp-assignments", "{{campId}}", "assign"],
+              "query": [{ "key": "count", "value": "50" }]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Assigned people to camp', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Assignments",
+      "item": [
+        {
+          "name": "AssignTeam",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/{{incidentId}}/assign/{{teamId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('teamAssignmentId', body.id); pm.environment.set('teamAssignmentId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "AssignVolunteer",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/assignments/volunteers/incidents/{{incidentId}}/volunteers/{{volunteerId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('volunteerAssignmentId', body.id); pm.environment.set('volunteerAssignmentId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "AssignReliefCamp",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/camp-assignments/admin/incidents/{{incidentId}}/camps/{{campId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "AssignResources",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/resource-assignments/resources/{{resourceId}}/camps/{{campId}}?quantity=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "resource-assignments", "resources", "{{resourceId}}", "camps", "{{campId}}"],
+              "query": [{ "key": "quantity", "value": "100" }]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('resourceAssignmentId', body.id); pm.environment.set('resourceAssignmentId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "AssignPeopleToCamp",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/camp-assignments/{{campId}}/assign?count=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "camp-assignments", "{{campId}}", "assign"],
+              "query": [{ "key": "count", "value": "10" }]
+            }
+          }
+        },
+        {
+          "name": "ReleasePeopleFromCamp",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/camp-assignments/{{campId}}/release?count=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "camp-assignments", "{{campId}}", "release"],
+              "query": [{ "key": "count", "value": "5" }]
+            }
+          }
+        },
+        {
+          "name": "GetAssignments",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/assignments?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "assignments"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GetAssignmentById",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/assignments/{{teamAssignmentId}}"
+          }
+        },
+        {
+          "name": "GetAssignmentsByIncident",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/incidents/{{incidentId}}/assignments?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "incidents", "{{incidentId}}", "assignments"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GetAssignmentsByTeam",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/teams/{{teamId}}/assignments?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "teams", "{{teamId}}", "assignments"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "UpdateAssignment",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"incidentId\": \"{{incidentId}}\",\n  \"teamId\": \"{{teamId}}\",\n  \"status\": \"IN_PROGRESS\"\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/assignments/{{teamAssignmentId}}/status"
+          }
+        },
+        {
+          "name": "DeleteTeamAssignment",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/admin/assignments/{{teamAssignmentId}}"
+          }
+        },
+        {
+          "name": "DeleteVolunteerAssignment",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/assignments/volunteers/{{volunteerAssignmentId}}"
+          }
+        },
+        {
+          "name": "DeleteResourceAssignment",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/resource-assignments/{{resourceAssignmentId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Incident",
+      "item": [
+        {
+          "name": "CreateIncident",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"EARTHQUAKE\",\n  \"severity\": 5,\n  \"reporter\": \"NDRF Control Room\",\n  \"latitude\": 19.0760,\n  \"longitude\": 72.8777\n}"
+            },
+            "url": "{{baseUrl}}/api/incidents"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('incidentId', body.id); pm.environment.set('incidentId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GetAllIncidents",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GetIncidentByID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/incidents/{{incidentId}}"
+          }
+        },
+        {
+          "name": "UpdateIncident",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"EARTHQUAKE\",\n  \"severity\": 4,\n  \"reporter\": \"Updated Reporter\",\n  \"latitude\": 19.0800,\n  \"longitude\": 72.8800\n}"
+            },
+            "url": "{{baseUrl}}/api/incidents/{{incidentId}}"
+          }
+        },
+        {
+          "name": "UpdateIncidentAdmin",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"EARTHQUAKE\",\n  \"severity\": 3,\n  \"reporter\": \"Admin Update\",\n  \"latitude\": 19.0800,\n  \"longitude\": 72.8800\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/incidents/{{incidentId}}"
+          }
+        },
+        {
+          "name": "DeleteIncident",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/admin/incidents/{{incidentId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "ReliefCamp",
+      "item": [
+        {
+          "name": "RegisterCamp",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Central Relief Camp\",\n  \"capacity\": 300,\n  \"latitude\": 28.6110,\n  \"longitude\": 77.2120\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/camps"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('campId', body.id); pm.environment.set('campId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GetCamps",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/camps?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "camps"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GetCampsById",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/camps/{{campId}}"
+          }
+        },
+        {
+          "name": "GetCampCapacity",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/camps/{{campId}}/capacity"
+          }
+        },
+        {
+          "name": "GetCampOccupancy",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/camps/{{campId}}/occupancy"
+          }
+        },
+        {
+          "name": "GetAvailableCamps",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/camps/available?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "camps", "available"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "UpdateCampStatus",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/camps/{{campId}}/status?status=ACTIVE",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "camps", "{{campId}}", "status"],
+              "query": [{ "key": "status", "value": "ACTIVE", "description": "ACTIVE | INACTIVE | FULL" }]
+            }
+          }
+        },
+        {
+          "name": "DeleteCamp",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/admin/camps/{{campId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "RescueTeam",
+      "item": [
+        {
+          "name": "RegisterTeam",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"teamName\": \"Bravo Rescue\",\n  \"captainName\": \"Amit Singh\",\n  \"contactInfo\": \"+91-9988776655\",\n  \"capacity\": 5,\n  \"skills\": [\"FIRE_FIGHTING\", \"RESCUE\"],\n  \"status\": \"AVAILABLE\",\n  \"latitude\": 28.6250,\n  \"longitude\": 77.2200\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/teams"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('teamId', body.id); pm.environment.set('teamId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GetTeam",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/teams?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "teams"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GetTeamById",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/teams?id={{teamId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "teams"],
+              "query": [{ "key": "id", "value": "{{teamId}}" }]
+            }
+          }
+        },
+        {
+          "name": "GetTeamByName",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/teams?name=Bravo Rescue",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "teams"],
+              "query": [{ "key": "name", "value": "Bravo Rescue" }]
+            }
+          }
+        },
+        {
+          "name": "GetTeamBySkill",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/teams?skill=RESCUE",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "teams"],
+              "query": [{ "key": "skill", "value": "RESCUE", "description": "MEDICAL | RESCUE | LOGISTIC | FIRE_FIGHTING" }]
+            }
+          }
+        },
+        {
+          "name": "UpdateTeam",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"teamName\": \"Bravo Rescue Updated\",\n  \"captainName\": \"Amit Singh\",\n  \"contactInfo\": \"+91-9988776655\",\n  \"capacity\": 6,\n  \"skills\": [\"FIRE_FIGHTING\", \"RESCUE\", \"MEDICAL\"],\n  \"status\": \"AVAILABLE\",\n  \"latitude\": 28.6250,\n  \"longitude\": 77.2200\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/teams/{{teamId}}"
+          }
+        },
+        {
+          "name": "DeleteTeam",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/admin/teams/{{teamId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Resources",
+      "item": [
+        {
+          "name": "CreateResource",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"MEDICINE\",\n  \"quantity\": 500,\n  \"availableQuantity\": 500,\n  \"latitude\": 28.6140,\n  \"longitude\": 77.2070\n}"
+            },
+            "url": "{{baseUrl}}/api/resources"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('resourceId', body.id); pm.environment.set('resourceId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GetResourceById",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/resources?id={{resourceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "resources"],
+              "query": [{ "key": "id", "value": "{{resourceId}}" }]
+            }
+          }
+        },
+        {
+          "name": "GetAllResources",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/resources?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "resources"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GetResourceByType",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/resources?type=FOOD&page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "resources"],
+              "query": [
+                { "key": "type", "value": "FOOD", "description": "FOOD | WATER | MEDICINE | SHELTER" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "UpdateResource",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"MEDICINE\",\n  \"quantity\": 600,\n  \"availableQuantity\": 450,\n  \"latitude\": 28.6140,\n  \"longitude\": 77.2070\n}"
+            },
+            "url": "{{baseUrl}}/api/resources/{{resourceId}}"
+          }
+        },
+        {
+          "name": "DeleteResource",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/resources/{{resourceId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Volunteer",
+      "item": [
+        {
+          "name": "RegisterVolunteer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sneha Kapoor\",\n  \"contactInfo\": \"+91-9000012345\",\n  \"skills\": [\"RESCUE\"],\n  \"status\": \"AVAILABLE\",\n  \"latitude\": 28.6180,\n  \"longitude\": 77.2040,\n  \"availabilityStart\": \"2026-05-22T06:00:00\",\n  \"availabilityEnd\": \"2026-05-22T22:00:00\"\n}"
+            },
+            "url": "{{baseUrl}}/api/volunteers"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('volunteerId', body.id); pm.environment.set('volunteerId', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GetVolunteer",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/volunteers?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "volunteers"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GetVolunteerById",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/volunteers?id={{volunteerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "volunteers"],
+              "query": [{ "key": "id", "value": "{{volunteerId}}" }]
+            }
+          }
+        },
+        {
+          "name": "GetVolunteerByName",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/volunteers?name=Sneha Kapoor&page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "volunteers"],
+              "query": [
+                { "key": "name", "value": "Sneha Kapoor" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GetVolunteerBySkill",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/volunteers?skill=MEDICAL&page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "volunteers"],
+              "query": [
+                { "key": "skill", "value": "MEDICAL", "description": "MEDICAL | RESCUE | LOGISTIC | FIRE_FIGHTING" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "UpdateVolunteer",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sneha Kapoor\",\n  \"contactInfo\": \"+91-9000012345\",\n  \"skills\": [\"RESCUE\", \"MEDICAL\"],\n  \"status\": \"AVAILABLE\",\n  \"latitude\": 28.6180,\n  \"longitude\": 77.2040,\n  \"availabilityStart\": \"2026-05-22T06:00:00\",\n  \"availabilityEnd\": \"2026-05-23T06:00:00\"\n}"
+            },
+            "url": "{{baseUrl}}/api/volunteers/{{volunteerId}}"
+          }
+        },
+        {
+          "name": "DeleteVolunteer",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/volunteers/{{volunteerId}}"
+          }
+        }
+      ]
+    }
+  ]
+}

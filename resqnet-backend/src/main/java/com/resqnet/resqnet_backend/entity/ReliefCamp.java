@@ -17,7 +17,7 @@ import java.util.*;
 public class ReliefCamp {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false)
@@ -38,11 +38,11 @@ public class ReliefCamp {
 
     @ManyToMany(mappedBy = "reliefCamps", fetch = FetchType.LAZY)
     @Builder.Default
-    private List<Incident> incidents = new ArrayList<>();
-
-    @ManyToMany(mappedBy = "reliefCamps", fetch = FetchType.LAZY)
-    @Builder.Default
     private List<Resource> resources = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "incident_id")
+    private Incident incident;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

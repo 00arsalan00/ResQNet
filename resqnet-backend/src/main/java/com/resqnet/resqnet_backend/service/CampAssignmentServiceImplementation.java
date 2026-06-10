@@ -1,9 +1,12 @@
 package com.resqnet.resqnet_backend.service;
 
 import com.resqnet.resqnet_backend.entity.CampStatus;
+import com.resqnet.resqnet_backend.entity.Incident;
 import com.resqnet.resqnet_backend.entity.ReliefCamp;
 import com.resqnet.resqnet_backend.exception.CampNotFoundException;
+import com.resqnet.resqnet_backend.exception.IncidentNotFoundException;
 import com.resqnet.resqnet_backend.exception.InvalidOperationException;
+import com.resqnet.resqnet_backend.repository.IncidentRepository;
 import com.resqnet.resqnet_backend.repository.ReliefCampRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import java.util.UUID;
 public class CampAssignmentServiceImplementation implements CampAssignmentService {
 
     private final ReliefCampRepository campRepository;
+    private final IncidentRepository incidentRepository;
 
     @Override
     @Transactional
@@ -69,6 +73,29 @@ public class CampAssignmentServiceImplementation implements CampAssignmentServic
         if (camp.getStatus() == CampStatus.FULL && newOccupancy < camp.getCapacity()) {
             camp.setStatus(CampStatus.ACTIVE);
         }
+
+        campRepository.save(camp);
+    }
+
+    @Override
+    @Transactional
+    public void assignCampToIncident(UUID incidentId, UUID campId) {
+
+        Incident incident = incidentRepository.findById(incidentId)
+                .orElseThrow(() -> new IncidentNotFoundException("Incident not found"));
+
+        ReliefCamp camp = campRepository.findById(campId)
+                .orElseThrow(() -> new CampNotFoundException("Camp not found"));
+
+        if (camp.getIncident() != null) {
+            throw new InvalidOperationException("Camp already assigned to an incident");
+        }
+
+        if (camp.getStatus() != CampStatus.ACTIVE) {
+            throw new InvalidOperationException("Camp is not active");
+        }
+
+        camp.setIncident(incident);
 
         campRepository.save(camp);
     }

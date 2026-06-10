@@ -1,16 +1,24 @@
 package com.resqnet.resqnet_backend.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     @ExceptionHandler(IncidentNotFoundException.class)
     public ResponseEntity<ApiError> handleIncidentNotFound(
             IncidentNotFoundException ex,
@@ -24,17 +32,37 @@ public class GlobalExceptionHandler {
             MethodArgumentTypeMismatchException ex,
             HttpServletRequest request) {
 
+        String message = buildParameterErrorMessage(ex);
+        return buildError(HttpStatus.BAD_REQUEST, message, request);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiError> handleMissingParameter(
+            MissingServletRequestParameterException ex,
+            HttpServletRequest request) {
+
         return buildError(HttpStatus.BAD_REQUEST,
-                "Invalid value for parameter: " + ex.getName(),
+                "Missing required parameter: " + ex.getParameterName(),
                 request);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleException(Exception ex,HttpServletRequest request){
-        ex.printStackTrace();
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiError> handleMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex,
+            HttpServletRequest request) {
 
-        return buildError(HttpStatus.INTERNAL_SERVER_ERROR,
-                "Internal Server Error",
+        return buildError(HttpStatus.METHOD_NOT_ALLOWED,
+                "HTTP method not supported for this endpoint",
+                request);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiError> handleNoResourceFound(
+            NoResourceFoundException ex,
+            HttpServletRequest request) {
+
+        return buildError(HttpStatus.NOT_FOUND,
+                "Endpoint not found. Check the URL path and ensure all ID path variables are set.",
                 request);
     }
 
@@ -139,6 +167,27 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ){
         return buildError(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> handleException(Exception ex, HttpServletRequest request) {
+        log.error("Unhandled exception on {}", request.getRequestURI(), ex);
+        return buildError(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal Server Error",
+                request);
+    }
+
+    private String buildParameterErrorMessage(MethodArgumentTypeMismatchException ex) {
+        String name = ex.getName();
+        Object value = ex.getValue();
+
+        if (ex.getRequiredType() == UUID.class
+                && (value == null || value.toString().isBlank())) {
+            return "Missing or invalid UUID for parameter: " + name
+                    + ". Ensure the path variable is set (e.g. incidentId, teamId, campId).";
+        }
+
+        return "Invalid value for parameter: " + name;
     }
 
     private ResponseEntity<ApiError> buildError(HttpStatus status,

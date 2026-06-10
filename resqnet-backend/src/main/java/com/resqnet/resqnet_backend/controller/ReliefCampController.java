@@ -3,6 +3,7 @@ package com.resqnet.resqnet_backend.controller;
 import com.resqnet.resqnet_backend.dto.ReliefCampRequestDTO;
 import com.resqnet.resqnet_backend.dto.ReliefCampResponseDTO;
 import com.resqnet.resqnet_backend.service.ReliefCampService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class ReliefCampController {
 
     @PostMapping
     public ResponseEntity<ReliefCampResponseDTO> createCamp(
-            @RequestBody ReliefCampRequestDTO request) {
+            @Valid @RequestBody ReliefCampRequestDTO request) {
 
         return ResponseEntity.status(201)
                 .body(campService.createCamp(request));
