@@ -1,19 +1,15 @@
 package com.resqnet.reqnet_security.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import jakarta.validation.constraints.NotNull;
 
 @Data
 public class LoginRequestDTO {
+    @NotBlank(message = "Identifier is required")
+    private String identifier;
 
-    @NotNull(message = "Provide either of field")
-    private String username;
-    private String email;
-    private String phoneNumber;
-
-    @NotNull(message = "Provide Password")
+    @NotBlank(message = "Password is required")
     private String password;
-
 }
 
 
