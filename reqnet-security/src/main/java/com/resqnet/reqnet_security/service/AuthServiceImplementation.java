@@ -68,7 +68,8 @@ public class AuthServiceImplementation implements AuthService {
         return generateAuthResponse(tokenEntity.getUser());
     }
 
-    private AuthResponseDTO generateAuthResponse(User user) {
+    @Override
+    public AuthResponseDTO generateAuthResponse(User user) {
         String accessToken = jwtProvider.generateAccessToken(user);
         String refreshToken = jwtProvider.generateRefreshToken(user);
 
