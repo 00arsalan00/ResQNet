@@ -18,18 +18,17 @@ public class OtpServiceImplementation implements OtpService {
 
     @Override
     public void sendOtp(OtpRequestDTO request) {
-        // Generate 6-digit code
+
         String code = String.valueOf((int)((Math.random() * 900000) + 100000));
 
         OtpCode otpCode = OtpCode.builder()
                 .phoneNumber(request.getPhoneNumber())
                 .code(code)
-                .expiryTime(LocalDateTime.now().plusMinutes(5)) // Expire in the FUTURE
+                .expiryTime(LocalDateTime.now().plusMinutes(5))
                 .build();
 
         otpRepository.save(otpCode);
 
-        // In production, this would integrate with an SMS gateway (Twilio, etc.)
         System.out.println("DEBUG: Sending OTP " + code + " to " + request.getPhoneNumber());
     }
 
@@ -48,7 +47,6 @@ public class OtpServiceImplementation implements OtpService {
         User user = userRepository.findByPhoneNumber(request.getPhoneNumber())
                 .orElseThrow(() -> new UserNotFoundException("User not registered with this phone number"));
 
-        // Use the public shared logic for token generation
         return authService.generateAuthResponse(user);
     }
 }
