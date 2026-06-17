@@ -32,17 +32,17 @@ public class OtpController {
     private void setCookies(HttpServletResponse response, AuthResponseDTO authResponse) {
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", authResponse.getAccessToken())
                 .httpOnly(true)
-                .secure(false) // Set to true in production
+                .secure(false)
                 .path("/")
-                .maxAge(1500) // 25 minutes
+                .maxAge(1500)
                 .sameSite("Strict")
                 .build();
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", authResponse.getRefreshToken())
                 .httpOnly(true)
-                .secure(false) // Set to true in production
+                .secure(false)
                 .path("/")
-                .maxAge(604800) // 7 days
+                .maxAge(604800)
                 .sameSite("Strict")
                 .build();
 

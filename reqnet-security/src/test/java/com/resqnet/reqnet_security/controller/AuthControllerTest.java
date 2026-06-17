@@ -2,6 +2,7 @@ package com.resqnet.reqnet_security.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.resqnet.reqnet_security.config.JwtProvider;
+import com.resqnet.reqnet_security.config.SecurityConfig;
 import com.resqnet.reqnet_security.dto.AuthResponseDTO;
 import com.resqnet.reqnet_security.dto.LoginRequestDTO;
 import com.resqnet.reqnet_security.dto.RegistrationRequestDTO;
@@ -10,20 +11,28 @@ import com.resqnet.reqnet_security.security.JwtFilter;
 import com.resqnet.reqnet_security.security.oauth2.CustomOAuth2UserService;
 import com.resqnet.reqnet_security.security.oauth2.OAuth2AuthenticationSuccessHandler;
 import com.resqnet.reqnet_security.service.AuthService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AuthController.class)
+@Import(SecurityConfig.class)
 class AuthControllerTest {
 
     @Autowired
@@ -46,6 +55,18 @@ class AuthControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    @BeforeEach
+    void setup() throws Exception {
+
+        doAnswer(invocation -> {
+            HttpServletRequest request = invocation.getArgument(0);
+            HttpServletResponse response = invocation.getArgument(1);
+            FilterChain filterChain = invocation.getArgument(2);
+            filterChain.doFilter(request, response);
+            return null;
+        }).when(jwtFilter).doFilter(any(), any(), any());
+    }
+
     @Test
     void register_success() throws Exception {
         RegistrationRequestDTO request = RegistrationRequestDTO.builder()
@@ -64,6 +85,7 @@ class AuthControllerTest {
         when(authService.registerUser(any())).thenReturn(response);
 
         mockMvc.perform(post("/api/auth/register")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -86,6 +108,7 @@ class AuthControllerTest {
         when(authService.loginUser(any())).thenReturn(response);
 
         mockMvc.perform(post("/api/auth/login")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
