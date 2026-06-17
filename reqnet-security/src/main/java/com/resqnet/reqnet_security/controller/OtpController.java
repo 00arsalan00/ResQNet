@@ -2,8 +2,11 @@ package com.resqnet.reqnet_security.controller;
 
 import com.resqnet.reqnet_security.dto.*;
 import com.resqnet.reqnet_security.service.OtpService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +23,30 @@ public class OtpController {
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<AuthResponseDTO> verifyOtp(@Valid @RequestBody OtpVerificationDTO request) {
-        return ResponseEntity.ok(otpService.verifyOtp(request));
+    public ResponseEntity<AuthResponseDTO> verifyOtp(@Valid @RequestBody OtpVerificationDTO request, HttpServletResponse response) {
+        AuthResponseDTO authResponse = otpService.verifyOtp(request);
+        setCookies(response, authResponse);
+        return ResponseEntity.ok(authResponse);
+    }
+
+    private void setCookies(HttpServletResponse response, AuthResponseDTO authResponse) {
+        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", authResponse.getAccessToken())
+                .httpOnly(true)
+                .secure(false) // Set to true in production
+                .path("/")
+                .maxAge(1500) // 25 minutes
+                .sameSite("Strict")
+                .build();
+
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", authResponse.getRefreshToken())
+                .httpOnly(true)
+                .secure(false) // Set to true in production
+                .path("/")
+                .maxAge(604800) // 7 days
+                .sameSite("Strict")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
     }
 }

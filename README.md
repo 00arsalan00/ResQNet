@@ -1,23 +1,44 @@
 # 🚑 ResQNet — Disaster Response Backend 
 
-## 📌 Phase 1 Overview
+## 📌 Overview
 
 ResQNet is a backend system designed to model real-world disaster response operations.
-Phase 1 focuses on building a **strong domain foundation and REST API layer** that supports future scalability, geospatial intelligence, and AI-driven decision-making.
+It is divided into two main modules:
+1. **resqnet-backend**: Core domain layer for disaster management.
+2. **reqnet-security**: Security layer handling multi-role authentication and authorization.
 
 ---
 
-## 🎯 Phase 1 Goals
+## 🎯 Project Goals
 
-* Design a **clean and scalable domain model**
-* Build **REST APIs for all core entities**
-* Integrate **PostgreSQL + PostGIS** for geospatial data
-* Implement **DTO validation and exception handling**
-* Establish a **modular monolith architecture**
+* **Phase 1**: Design a clean and scalable domain model and build REST APIs for core entities.
+* **Phase 2**: Implement a robust security layer with multi-role RBAC, JWT rotation, and hybrid authentication.
 
 ---
 
-## 🧠 Core Domain Model
+## 🧠 Core Domain Model (Phase 1)
+... (existing content) ...
+
+---
+
+## 🔐 Security Architecture (Phase 2)
+
+### Roles:
+* **CITIZEN**: Report incidents, track own status.
+* **VOLUNTEER / FIELD_RESCUE_TEAM**: Accept tasks, update progress.
+* **DISTRICT_COORDINATOR**: Scoped access to district incidents and resources.
+* **SUPER_ADMIN**: Full system control and cross-district analytics.
+
+### Features:
+* **Hybrid Auth**: LOCAL (Email/Pass), GOOGLE (OAuth2), and OTP (Phone).
+* **JWT Rotation**: 25-minute Access Token + 7-day Refresh Token with DB-backed revocation.
+* **Cookie-Based**: Tokens are delivered and validated via HttpOnly cookies for enhanced security.
+* **Scoped Authorization**: District-based isolation for coordinators and teams.
+* **Audit Logging**: Comprehensive tracking of all critical system actions.
+
+---
+
+## ⚙️ Tech Stack
 
 The system revolves around **Incident** as the central entity.
 

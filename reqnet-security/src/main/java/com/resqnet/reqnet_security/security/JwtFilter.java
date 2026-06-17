@@ -4,6 +4,7 @@ import com.resqnet.reqnet_security.config.JwtProvider;
 import com.resqnet.reqnet_security.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -32,18 +33,27 @@ public class JwtFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         
+        String jwt = null;
         final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String userIdentifier;
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            jwt = authHeader.substring(7);
+        } else if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("accessToken".equals(cookie.getName())) {
+                    jwt = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (jwt == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        jwt = authHeader.substring(7);
         try {
-            userIdentifier = jwtProvider.extractUsername(jwt);
+            final String userIdentifier = jwtProvider.extractUsername(jwt);
 
             if (userIdentifier != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 var userOptional = userRepository.findByEmail(userIdentifier)
@@ -61,7 +71,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            // Token is invalid or expired - we don't set the authentication and let security chain handle it
+            // Token is invalid or expired
         }
 
         filterChain.doFilter(request, response);
