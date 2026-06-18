@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+/* Custom scrollbar for Cello theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-peppermint dark:bg-cello;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-wedgewood/30 dark:bg-aqua-island/20 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-amaranth/50;
+}

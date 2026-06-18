@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class IncidentServiceImplementation implements IncidentService {
     private final IncidentRepository incidentRepository;
     private final IncidentMapper incidentMapper;
     private final GeometryFactory geometryFactory;
+    private final GeocodingService geocodingService;
 
     @Override
     public IncidentResponseDTO getById(UUID id) {
@@ -41,6 +43,18 @@ public class IncidentServiceImplementation implements IncidentService {
     @Override
     public IncidentResponseDTO register(IncidentRequestDTO request) {
         Incident incident = incidentMapper.toEntity(request, geometryFactory);
+
+        if (request.getLatitude() == null || request.getLongitude() == null) {
+            String fullAddress = String.format("%s, %s, %s, %s, %s, %s",
+                    request.getAddress(), request.getStreet(), request.getLandmark(),
+                    request.getCity(), request.getDistrict(), request.getCountry());
+            
+            double[] coords = geocodingService.getCoordinates(fullAddress);
+            
+            Point point = geometryFactory.createPoint(new Coordinate(coords[0], coords[1]));
+            incident.setLocation(point);
+        }
+
         return incidentMapper.toResponse(incidentRepository.save(incident));
     }
 
@@ -49,12 +63,26 @@ public class IncidentServiceImplementation implements IncidentService {
         Incident incident = incidentRepository.findById(id)
                 .orElseThrow(() -> new IncidentNotFoundException("Incident not found with id: " + id));
 
-        incident.setLocation(
-                geometryFactory.createPoint(
-                        new Coordinate(request.getLongitude(), request.getLatitude())
-                )
-        );
+        Point point;
+        if (request.getLatitude() != null && request.getLongitude() != null) {
+            point = geometryFactory.createPoint(new Coordinate(request.getLongitude(), request.getLatitude()));
+        } else {
+            String fullAddress = String.format("%s, %s, %s, %s, %s, %s",
+                    request.getAddress(), request.getStreet(), request.getLandmark(),
+                    request.getCity(), request.getDistrict(), request.getCountry());
+            double[] coords = geocodingService.getCoordinates(fullAddress);
+            point = geometryFactory.createPoint(new Coordinate(coords[0], coords[1]));
+        }
+
+        incident.setLocation(point);
         incident.setReporter(request.getReporter());
+        incident.setDescription(request.getDescription());
+        incident.setAddress(request.getAddress());
+        incident.setStreet(request.getStreet());
+        incident.setLandmark(request.getLandmark());
+        incident.setCity(request.getCity());
+        incident.setDistrict(request.getDistrict());
+        incident.setCountry(request.getCountry());
 
         return incidentMapper.toResponse(incidentRepository.save(incident));
     }
@@ -65,13 +93,27 @@ public class IncidentServiceImplementation implements IncidentService {
                 .orElseThrow(() -> new IncidentNotFoundException("Incident not found with id: " + id));
 
         incident.setType(IncidentType.valueOf(request.getType().name()));
-        incident.setSeverity(request.getSeverity());
-        incident.setLocation(
-                geometryFactory.createPoint(
-                        new Coordinate(request.getLongitude(), request.getLatitude())
-                )
-        );
+        
+        Point point;
+        if (request.getLatitude() != null && request.getLongitude() != null) {
+            point = geometryFactory.createPoint(new Coordinate(request.getLongitude(), request.getLatitude()));
+        } else {
+            String fullAddress = String.format("%s, %s, %s, %s, %s, %s",
+                    request.getAddress(), request.getStreet(), request.getLandmark(),
+                    request.getCity(), request.getDistrict(), request.getCountry());
+            double[] coords = geocodingService.getCoordinates(fullAddress);
+            point = geometryFactory.createPoint(new Coordinate(coords[0], coords[1]));
+        }
+
+        incident.setLocation(point);
         incident.setReporter(request.getReporter());
+        incident.setDescription(request.getDescription());
+        incident.setAddress(request.getAddress());
+        incident.setStreet(request.getStreet());
+        incident.setLandmark(request.getLandmark());
+        incident.setCity(request.getCity());
+        incident.setDistrict(request.getDistrict());
+        incident.setCountry(request.getCountry());
 
         return incidentMapper.toResponse(incidentRepository.save(incident));
     }

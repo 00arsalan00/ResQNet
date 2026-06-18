@@ -1,4 +1,5 @@
 package com.resqnet.resqnet_backend.entity;
+
 import org.locationtech.jts.geom.Point;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,7 +23,18 @@ public class Incident {
     private IncidentType type;
 
     @Column(nullable = false)
-    private Integer severity;
+    private Integer severity; // This will be updated by NLP later
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    // Address Components
+    private String address;
+    private String street;
+    private String landmark;
+    private String city;
+    private String district;
+    private String country;
 
     @Column(columnDefinition = "geometry(Point, 4326)")
     private Point location;

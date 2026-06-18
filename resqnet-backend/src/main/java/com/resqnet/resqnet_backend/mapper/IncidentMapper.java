@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 public class IncidentMapper {
 
     public IncidentResponseDTO toResponse(Incident incident) {
-
         double latitude = 0;
         double longitude = 0;
 
@@ -36,14 +35,23 @@ public class IncidentMapper {
     }
 
     public Incident toEntity(IncidentRequestDTO request, GeometryFactory geometryFactory) {
-
-        Point point = geometryFactory.createPoint(
-                new Coordinate(request.getLongitude(), request.getLatitude())
-        );
+        Point point = null;
+        if (request.getLatitude() != null && request.getLongitude() != null) {
+            point = geometryFactory.createPoint(
+                    new Coordinate(request.getLongitude(), request.getLatitude())
+            );
+        }
 
         return Incident.builder()
                 .type(request.getType())
-                .severity(request.getSeverity())
+                .severity(3) // Initial default severity, will be refined by NLP later
+                .description(request.getDescription())
+                .address(request.getAddress())
+                .street(request.getStreet())
+                .landmark(request.getLandmark())
+                .city(request.getCity())
+                .district(request.getDistrict())
+                .country(request.getCountry())
                 .location(point)
                 .status(IncidentStatus.REPORTED)
                 .reporter(request.getReporter())

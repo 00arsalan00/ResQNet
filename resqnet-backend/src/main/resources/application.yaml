@@ -4,8 +4,9 @@ server:
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/resqnet
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    # Falls back to 'postgres' and 'admin' if environment variables are missing
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:admin}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -16,7 +17,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        # This helps the driver map the type during auto-creation
         jdbc:
           types:
             geometry: org.hibernate.spatial.JTSGeometryJavaType
