@@ -1,0 +1,33 @@
+# Build artifacts
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE settings
+.idea/
+*.iml
+.settings/
+.project
+.classpath
+.factorypath
+
+# Frontend
+resqnet-frontend/resqnet-ui/node_modules/
+resqnet-frontend/resqnet-ui/dist/
+resqnet-frontend/resqnet-ui/.vite/
+
+# Environment
+.env
+.env.*
+application-*.yaml
+application-*.yml
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
