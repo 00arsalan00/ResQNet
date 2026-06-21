@@ -1,144 +1,89 @@
-# 🚑 ResQNet — Disaster Response Backend 
+# 🚑 ResQNet — Integrated Disaster Response Platform
 
-## 📌 Overview
-
-ResQNet is a backend system designed to model real-world disaster response operations.
-It is divided into two main modules:
-1. **resqnet-backend**: Core domain layer for disaster management.
-2. **reqnet-security**: Security layer handling multi-role authentication and authorization.
+ResQNet is a sophisticated, full-stack disaster management ecosystem designed to model real-world emergency operations. The system bridge geospatial intelligence, multi-modal security, and high-fidelity visualization to create a unified command and control center.
 
 ---
 
-## 🎯 Project Goals
+## 📌 Project Overview
 
-* **Phase 1**: Design a clean and scalable domain model and build REST APIs for core entities.
-* **Phase 2**: Implement a robust security layer with multi-role RBAC, JWT rotation, and hybrid authentication.
-
----
-
-## 🧠 Core Domain Model (Phase 1)
-... (existing content) ...
+ResQNet is structured into three specialized modules:
+1.  **`resqnet-backend`**: The core operational engine handling incidents, resources, and geospatial logic.
+2.  **`resqnet-security`**: A dedicated identity provider managing hybrid authentication and scoped authorization.
+3.  **`resqnet-ui`**: A high-impact frontend delivering real-time situational awareness.
 
 ---
 
-## 🔐 Security Architecture (Phase 2)
+## 🧠 Phase 1: Core Domain Foundation (Backend)
 
-### Roles:
-* **CITIZEN**: Report incidents, track own status.
-* **VOLUNTEER / FIELD_RESCUE_TEAM**: Accept tasks, update progress.
-* **DISTRICT_COORDINATOR**: Scoped access to district incidents and resources.
-* **SUPER_ADMIN**: Full system control and cross-district analytics.
+The system revolves around the **Incident** as the central entity, coordinating human and material resources.
 
-### Features:
-* **Hybrid Auth**: LOCAL (Email/Pass), GOOGLE (OAuth2), and OTP (Phone).
-* **JWT Rotation**: 25-minute Access Token + 7-day Refresh Token with DB-backed revocation.
-* **Cookie-Based**: Tokens are delivered and validated via HttpOnly cookies for enhanced security.
-* **Scoped Authorization**: District-based isolation for coordinators and teams.
-* **Audit Logging**: Comprehensive tracking of all critical system actions.
+### **Core Entities:**
+*   **Incident**: Disaster events with type, narrative description, and geospatial location.
+*   **RescueTeam**: Professional response units with specialized skills and deployment status.
+*   **Volunteer**: Individuals assisting in local operations.
+*   **Resource**: Inventory management (food, medical supplies, equipment).
+*   **ReliefCamp**: Safe zones and distribution hubs for affected populations.
+
+### **Geospatial Intelligence:**
+*   Uses **PostgreSQL + PostGIS** for storing location as native `POINT` geometry.
+*   **Hybrid Geocoding**: Automatically converts text addresses into GPS coordinates for 100% database coordinate coverage.
+
+---
+
+## 🔐 Phase 2: Security & Scoped Authorization
+
+Designed for high-stress environments, Phase 2 implements a multi-tenant security architecture.
+
+### **Hybrid Authentication:**
+*   **Citizen Access**: Instant registration/login via **Google OAuth2**.
+*   **Field Operations**: Passwordless **OTP-based login** for responders using mobile devices.
+*   **Command Level**: Traditional **Email/Password** for coordinators and admins.
+
+### **Authorization & Accountability:**
+*   **District Scoping**: District Coordinators are locked to their specific `districtId`, preventing unauthorized cross-district data access.
+*   **JWT Rotation**: 25-minute Access Tokens + 7-day Refresh Tokens with database-backed revocation.
+*   **Audit Logging**: Every dispatch, status change, and resource allocation is logged with the actor's identity, role, and district.
+
+---
+
+## 🖥️ Phase 3: Command Center (Frontend)
+
+The frontend delivers a "War Room" experience, emphasizing clarity and visual impact.
+
+### **High-Fidelity Visualizations:**
+*   **3D Global Threat Monitor**: An interactive **Three.js globe** with dynamic country borders and spherical-to-flat "Unroll" animations.
+*   **2D Operational Reach**: A detailed map grid using `react-simple-maps` with animated **Amaranth Pins** marking active ResQNet nodes.
+*   **NLP Narrative Portal**: A full-page reporting interface designed to capture descriptive disaster narratives for future AI analysis.
+
+### **UX & Design:**
+*   **Fresh Palette**: Orchestrated use of **Amaranth**, **Peppermint**, **Aqua Island**, **Wedgewood**, and **Cello**.
+*   **Dynamic Theming**: Full synchronization between Light and Dark modes across all 2D and 3D components.
+*   **Glassmorphism**: Translucent, blurred UI layers for a modern, tactical feel.
 
 ---
 
 ## ⚙️ Tech Stack
 
-The system revolves around **Incident** as the central entity.
-
-### Entities:
-
-* **Incident** – disaster event (type, severity, location, status)
-* **RescueTeam** – response units with skills and availability
-* **Volunteer** – individuals assisting in operations
-* **Resource** – inventory (food, water, medicine, etc.)
-* **ReliefCamp** – shelters for affected people
-* **IncidentResource** – tracks resource allocation per incident
+| Layer | Technology |
+| :--- | :--- |
+| **Backend** | Spring Boot 3.2, Java 21, Maven |
+| **Security** | Spring Security 6, JWT (JJWT), OAuth2 Client |
+| **Database** | PostgreSQL, PostGIS (Spatial Data) |
+| **Frontend** | React, Vite, Tailwind CSS, Lucide Icons |
+| **Graphics** | Three.js, React Three Fiber, D3-Geo |
 
 ---
 
-## 🔗 Key Relationships
+## 🧪 Quick Start
 
-* Incident ↔ RescueTeam via **IncidentAssignment** (assignment entity with status lifecycle)
-* Incident ↔ Volunteer via **VolunteerAssignment** (assignment entity with role and status)
-* Incident → **IncidentResource** → Resource (per-incident allocation; entity modeled, API planned)
-* Incident → ReliefCamp (Many-to-One on camp; link via `POST /api/camp-assignments/admin/incidents/{incidentId}/camps/{campId}`)
-* Resource ↔ ReliefCamp via **ResourceAssignment** and optional **camp_resources** join for inventory at camps
-
----
-
-## ⚙️ Tech Stack
-
-| Layer      | Technology                  |
-| ---------- | --------------------------- |
-| Backend    | Spring Boot                 |
-| Database   | PostgreSQL                  |
-| Geospatial | PostGIS                     |
-| ORM        | Spring Data JPA (Hibernate) |
-| Migration  | Flyway (dependency present; disabled — schema via Hibernate `ddl-auto: update`) |
-| API Docs   | Planned (OpenAPI/Swagger not yet wired) |
-| Build Tool | Maven                       |
-
----
-
-## 🌍 Geospatial Support
-
-* Uses **PostGIS POINT type** for location storage
-* Enables future features:
-
-    * Nearest responder search
-    * Distance-based allocation
-    * Geospatial analytics
-
----
-
-## 🧱 Architecture
-
-```
-Controller → Service → Repository → Database
-```
-
-* **Controller**: API layer
-* **Service**: Business logic
-* **Repository**: Data access
-* **Entity**: Domain model
-
----
-
-## 🔐 Configuration
-
-Sensitive data (DB credentials) is handled via **environment variables**:
-
-```
-DB_USERNAME
-DB_PASSWORD
-```
-
-Example:
-
-```yaml
-spring:
-  datasource:
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-```
-
----
-
-## 🧪 Sample Flow (Postman)
-
-1. Create Incident (with GPS coordinates)
-2. Register Rescue Team
-3. Assign Team to Incident
-4. Add Volunteers
-5. Allocate Resources
-6. Link Relief Camp
+1.  **Configure DB**: Ensure PostgreSQL is running with a `resqnet` database.
+2.  **Environment**: Set `DB_USERNAME`, `DB_PASSWORD`, and `JWT_SECRET`.
+3.  **Launch Backend**: Run `ResqnetBackendApplication` (Port 8071).
+4.  **Launch Security**: Run `SecurityApplication` (Port 8072).
+5.  **Launch UI**: `cd resqnet-frontend/resqnet-ui && npm install && npm run dev`.
 
 ---
 
 ## 👨‍💻 Author
-
 **Mohammad Arsalan Rayeen**
-Backend & AI Enthusiast
-
----
-
-## ⭐ Note
-
-This project is built with a focus on **system design, scalability, and real-world applicability**, not just CRUD operations.
+*Backend & AI Enthusiast*
