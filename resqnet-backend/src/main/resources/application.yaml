@@ -4,7 +4,6 @@ server:
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/resqnet
-    # Falls back to 'postgres' and 'admin' if environment variables are missing
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:admin}
     driver-class-name: org.postgresql.Driver

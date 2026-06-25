@@ -4,8 +4,8 @@ server:
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/resqnet
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:admin}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -29,6 +29,6 @@ spring:
               - profile
 
 jwt:
-  access-token-expiration: 1500000 # 25 minutes in ms
-  refresh-token-expiration: 604800000 # 7 days in ms
+  access-token-expiration: 1500000 
+  refresh-token-expiration: 604800000
   secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}

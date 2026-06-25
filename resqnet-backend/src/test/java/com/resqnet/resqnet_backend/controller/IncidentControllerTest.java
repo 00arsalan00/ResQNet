@@ -60,10 +60,13 @@ class IncidentControllerTest {
 
         IncidentRequestDTO request = new IncidentRequestDTO();
         request.setType(IncidentType.FLOOD);
-        request.setSeverity(3);
         request.setLatitude(28.61);
         request.setLongitude(77.20);
         request.setReporter("Arsalan");
+        request.setDescription("Test description");
+        request.setCity("Delhi");
+        request.setDistrict("Central");
+        request.setCountry("India");
 
         IncidentResponseDTO response = IncidentResponseDTO.builder().build();
 

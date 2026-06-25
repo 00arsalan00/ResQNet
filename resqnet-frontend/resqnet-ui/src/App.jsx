@@ -5,7 +5,12 @@ import Globe from './components/Globe';
 import Dashboard from './features/operations/Dashboard';
 import LiveMap from './features/operations/LiveMap';
 import ReportIncident from './features/operations/ReportIncident';
+import Login from './features/auth/Login';
+import Signup from './features/auth/Signup';
+import OtpAuth from './features/auth/OtpAuth';
+import ProtectedRoute from './components/ProtectedRoute';
 import { ThemeProvider } from './store/ThemeContext';
+import { AuthProvider } from './store/AuthContext';
 
 function LandingPage() {
   return (
@@ -53,10 +58,17 @@ function MainLayout() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/report" element={<ReportIncident />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/otp-login" element={<OtpAuth />} />
+
+        {/* Protected Dashboard - Accessible by all roles except CITIZEN for the full ops view */}
         <Route path="/dashboard" element={
-          <div className="pt-28 px-6 pb-12 flex-1 overflow-y-auto">
-            <Dashboard />
-          </div>
+          <ProtectedRoute roles={['SUPER_ADMIN', 'DISTRICT_COORDINATOR', 'FIELD_RESCUE_TEAM', 'VOLUNTEER']}>
+            <div className="pt-28 px-6 pb-12 flex-1 overflow-y-auto">
+              <Dashboard />
+            </div>
+          </ProtectedRoute>
         } />
       </Routes>
     </div>
@@ -66,7 +78,9 @@ function MainLayout() {
 function App() {
   return (
     <ThemeProvider>
-      <MainLayout />
+      <AuthProvider>
+        <MainLayout />
+      </AuthProvider>
     </ThemeProvider>
   );
 }

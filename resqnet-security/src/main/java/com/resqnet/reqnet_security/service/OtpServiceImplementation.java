@@ -16,36 +16,47 @@ public class OtpServiceImplementation implements OtpService {
     private final UserRepository userRepository;
     private final AuthService authService;
 
+    private String normalizePhone(String phone) {
+        return phone.replaceAll("\\s+", "");
+    }
+
     @Override
     public void sendOtp(OtpRequestDTO request) {
-
+        String phoneNumber = normalizePhone(request.getPhoneNumber());
         String code = String.valueOf((int)((Math.random() * 900000) + 100000));
 
         OtpCode otpCode = OtpCode.builder()
-                .phoneNumber(request.getPhoneNumber())
+                .phoneNumber(phoneNumber)
                 .code(code)
                 .expiryTime(LocalDateTime.now().plusMinutes(5))
                 .build();
 
         otpRepository.save(otpCode);
 
-        System.out.println("DEBUG: Sending OTP " + code + " to " + request.getPhoneNumber());
+        // In production, integrate with Twilio/Msg91 here
+        System.out.println("DEBUG: Sending OTP " + code + " to " + phoneNumber);
     }
 
     @Override
     public AuthResponseDTO verifyOtp(OtpVerificationDTO request) {
-        OtpCode otpCode = otpRepository.findTopByPhoneNumberAndUsedFalseOrderByExpiryTimeDesc(request.getPhoneNumber())
-                .orElseThrow(() -> new InvalidTokenException("No active OTP found for this number"));
+        String phoneNumber = normalizePhone(request.getPhoneNumber());
+        
+        OtpCode otpCode = otpRepository.findTopByPhoneNumberAndUsedFalseOrderByExpiryTimeDesc(phoneNumber)
+                .orElseThrow(() -> new InvalidTokenException("No active OTP request found for " + phoneNumber));
 
-        if (!otpCode.getCode().equals(request.getCode()) || otpCode.isExpired()) {
-            throw new InvalidTokenException("Invalid or expired OTP code");
+        if (otpCode.isExpired()) {
+            throw new InvalidTokenException("Access Key has expired. Please request a new one.");
+        }
+
+        if (!otpCode.getCode().equals(request.getCode().trim())) {
+            throw new InvalidTokenException("The Access Key provided does not match our records.");
         }
 
         otpCode.setUsed(true);
         otpRepository.save(otpCode);
 
-        User user = userRepository.findByPhoneNumber(request.getPhoneNumber())
-                .orElseThrow(() -> new UserNotFoundException("User not registered with this phone number"));
+        User user = userRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new UserNotFoundException("No responder account found for " + phoneNumber));
 
         return authService.generateAuthResponse(user);
     }

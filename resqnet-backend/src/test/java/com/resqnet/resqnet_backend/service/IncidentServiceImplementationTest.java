@@ -28,6 +28,9 @@ public class IncidentServiceImplementationTest {
     @Mock
     private GeometryFactory geometryFactory;
 
+    @Mock
+    private GeocodingService geocodingService;
+
     @InjectMocks
     private IncidentServiceImplementation incidentService;
 
@@ -35,10 +38,13 @@ public class IncidentServiceImplementationTest {
     void shouldRegisterIncident() {
         IncidentRequestDTO request = new IncidentRequestDTO();
         request.setType(IncidentType.FLOOD);
-        request.setSeverity(3);
         request.setLatitude(28.61);
         request.setLongitude(77.20);
         request.setReporter("Arsalan");
+        request.setDescription("Test");
+        request.setCity("Delhi");
+        request.setDistrict("Central");
+        request.setCountry("India");
 
         Incident incident = new Incident();
         Incident savedIncident = new Incident();

@@ -2,11 +2,11 @@ package com.resqnet.resqnet_backend.service;
 
 import com.resqnet.resqnet_backend.dto.IncidentRequestDTO;
 import com.resqnet.resqnet_backend.dto.IncidentResponseDTO;
-import com.resqnet.resqnet_backend.entity.Incident;
-import com.resqnet.resqnet_backend.entity.IncidentType;
+import com.resqnet.resqnet_backend.entity.*;
 import com.resqnet.resqnet_backend.exception.IncidentNotFoundException;
 import com.resqnet.resqnet_backend.mapper.IncidentMapper;
 import com.resqnet.resqnet_backend.repository.IncidentRepository;
+import com.resqnet.resqnet_backend.repository.SecurityUserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
@@ -23,6 +23,7 @@ import java.util.UUID;
 public class IncidentServiceImplementation implements IncidentService {
 
     private final IncidentRepository incidentRepository;
+    private final SecurityUserRepository userRepository;
     private final IncidentMapper incidentMapper;
     private final GeometryFactory geometryFactory;
     private final GeocodingService geocodingService;
@@ -42,6 +43,16 @@ public class IncidentServiceImplementation implements IncidentService {
 
     @Override
     public IncidentResponseDTO register(IncidentRequestDTO request) {
+        if (!userRepository.existsByEmail(request.getReporter())) {
+            SecurityUser autoUser = SecurityUser.builder()
+                    .email(request.getReporter())
+                    .role(UserRole.CITIZEN)
+                    .authProvider(AuthProviderType.LOCAL)
+                    .enabled(true)
+                    .build();
+            userRepository.save(autoUser);
+        }
+
         Incident incident = incidentMapper.toEntity(request, geometryFactory);
 
         if (request.getLatitude() == null || request.getLongitude() == null) {
@@ -50,9 +61,7 @@ public class IncidentServiceImplementation implements IncidentService {
                     request.getCity(), request.getDistrict(), request.getCountry());
             
             double[] coords = geocodingService.getCoordinates(fullAddress);
-            
-            Point point = geometryFactory.createPoint(new Coordinate(coords[0], coords[1]));
-            incident.setLocation(point);
+            incident.setLocation(geometryFactory.createPoint(new Coordinate(coords[0], coords[1])));
         }
 
         return incidentMapper.toResponse(incidentRepository.save(incident));
