@@ -43,9 +43,10 @@ public class IncidentServiceImplementation implements IncidentService {
 
     @Override
     public IncidentResponseDTO register(IncidentRequestDTO request) {
-        if (!userRepository.existsByEmail(request.getReporter())) {
+        if (request.getEmail() != null && !userRepository.existsByEmail(request.getEmail())) {
             SecurityUser autoUser = SecurityUser.builder()
-                    .email(request.getReporter())
+                    .email(request.getEmail())
+                    .phoneNumber(request.getPhoneNumber())
                     .role(UserRole.CITIZEN)
                     .authProvider(AuthProviderType.LOCAL)
                     .enabled(true)

@@ -15,10 +15,13 @@ public class IncidentRequestDTO {
     @NotBlank
     private String reporter;
 
+    private String email;
+
+    private String phoneNumber;
+
     @NotBlank
     private String description;
 
-    // Address Details
     private String address;
     private String street;
     private String landmark;
@@ -32,7 +35,6 @@ public class IncidentRequestDTO {
     @NotBlank
     private String country;
 
-    // Optional Coordinates
     @DecimalMin("-90.0") @DecimalMax("90.0")
     private Double latitude;
 
