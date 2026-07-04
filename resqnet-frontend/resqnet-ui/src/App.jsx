@@ -1,10 +1,11 @@
 import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Link } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Globe from './components/Globe';
 import Dashboard from './features/operations/Dashboard';
 import LiveMap from './features/operations/LiveMap';
 import ReportIncident from './features/operations/ReportIncident';
+import MyReports from './features/operations/MyReports';
 import Login from './features/auth/Login';
 import Signup from './features/auth/Signup';
 import OtpAuth from './features/auth/OtpAuth';
@@ -20,7 +21,7 @@ function LandingPage() {
           <h2 className="text-5xl md:text-8xl font-black tracking-tighter text-cello dark:text-peppermint uppercase">
             Global <span className="text-amaranth drop-shadow-sm">Response</span>
           </h2>
-          <p className="text-base md:text-lg text-wedgewood dark:text-aqua-island/80 font-medium max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base md:text-lg text-wedgewood dark:text-aqua-island/80 font-medium max-w-2xl mx-auto leading-relaxed text-center">
             Unified platform for real-time disaster tracking, resource allocation, and emergency field operations coordination.
           </p>
         </div>
@@ -62,7 +63,14 @@ function MainLayout() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/otp-login" element={<OtpAuth />} />
 
-        {/* Protected Dashboard - Accessible by all roles except CITIZEN for the full ops view */}
+        <Route path="/my-reports" element={
+          <ProtectedRoute roles={['CITIZEN', 'SUPER_ADMIN']}>
+            <div className="pt-28 px-6 pb-12 flex-1 overflow-y-auto">
+              <MyReports />
+            </div>
+          </ProtectedRoute>
+        } />
+
         <Route path="/dashboard" element={
           <ProtectedRoute roles={['SUPER_ADMIN', 'DISTRICT_COORDINATOR', 'FIELD_RESCUE_TEAM', 'VOLUNTEER']}>
             <div className="pt-28 px-6 pb-12 flex-1 overflow-y-auto">

@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { ShieldAlert, MapPin, MessageSquare, Info, ChevronLeft, Send, Globe as GlobeIcon, CheckCircle, Smartphone, Mail, Timer, RefreshCcw, ShieldCheck, User } from 'lucide-react';
 import { incidentService } from '../../services/api';
 import { authService } from '../../services/auth';
+import { useAuth } from '../../store/AuthContext';
 
 const INCIDENT_TYPES = ['FLOOD', 'EARTHQUAKE', 'FIRE', 'ACCIDENT', 'MEDICAL', 'STORM', 'OTHER'];
 
 export default function ReportIncident() {
   const navigate = useNavigate();
+  const { user: authUser, handleOtpLogin } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     type: 'OTHER',
@@ -47,6 +49,25 @@ export default function ReportIncident() {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleNextStep = () => {
+    setError('');
+    if (step === 1) {
+      if (authUser) {
+        setFormData(prev => ({
+          ...prev,
+          email: authUser.email || '',
+          phoneNumber: authUser.phoneNumber || '',
+          reporter: authUser.name || prev.reporter
+        }));
+        setStep(3);
+      } else {
+        setStep(2);
+      }
+    } else {
+      setStep(step + 1);
+    }
   };
 
   const resetVerification = () => {
@@ -95,8 +116,9 @@ export default function ReportIncident() {
     setError('');
     const cleanInput = identityInput.replace(/\s/g, '');
     try {
-      await authService.verifyOtp({ phoneNumber: cleanInput, code: otpCode.trim() });
+      const response = await authService.verifyOtp({ phoneNumber: cleanInput, code: otpCode.trim() });
       setIsVerified(true);
+      handleOtpLogin(response.data);
       setTimeout(() => setStep(3), 1000);
     } catch (err) {
       setError(err.response?.data?.message || 'Verification key mismatch.');
@@ -118,8 +140,7 @@ export default function ReportIncident() {
 
     try {
       await incidentService.register(payload);
-      alert('Transmission successful. Incident logged.');
-      navigate('/');
+      navigate('/my-reports');
     } catch (err) {
       setError('Transmission failed. Satellite link error.');
     } finally {
@@ -136,7 +157,7 @@ export default function ReportIncident() {
         <ChevronLeft className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform" /> Back
       </button>
 
-      <div className="bg-white dark:bg-cello rounded-[2.5rem] border border-wedgewood/10 shadow-2xl overflow-hidden transition-colors duration-500">
+      <div className="bg-white dark:bg-cello rounded-[2.5rem] border border-wedgewood/10 shadow-2xl overflow-hidden transition-colors duration-500 text-cello dark:text-peppermint">
         <div className="bg-amaranth p-8 md:p-12 text-peppermint">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -153,7 +174,7 @@ export default function ReportIncident() {
 
         <div className="p-8 md:p-12">
           {step === 1 && (
-            <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500 text-cello dark:text-peppermint">
+            <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
               <div className="flex items-center space-x-3 text-amaranth">
                 <MessageSquare className="w-5 h-5" />
                 <h2 className="font-black uppercase tracking-widest text-sm">Step 1: The Situation</h2>
@@ -195,13 +216,13 @@ export default function ReportIncident() {
                 disabled={!formData.description || !formData.reporter}
                 className="w-full bg-cello dark:bg-peppermint text-peppermint dark:text-cello py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-amaranth dark:hover:bg-amaranth transition-all shadow-xl disabled:opacity-30"
               >
-                Continue to Verification
+                Continue {authUser ? 'to Location' : 'to Verification'}
               </button>
             </div>
           )}
 
           {step === 2 && (
-            <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500 text-cello dark:text-peppermint">
+            <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
               <div className="flex items-center space-x-3 text-wedgewood">
                 <ShieldCheck className="w-5 h-5" />
                 <h2 className="font-black uppercase tracking-widest text-sm">Step 2: Identity Verification</h2>
@@ -288,7 +309,7 @@ export default function ReportIncident() {
           )}
 
           {step === 3 && (
-            <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-500 text-cello dark:text-peppermint">
+            <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-500">
               <div className="flex items-center space-x-3 text-wedgewood">
                 <MapPin className="w-5 h-5" />
                 <h2 className="font-black uppercase tracking-widest text-sm">Step 3: Geolocation Details</h2>
@@ -300,7 +321,7 @@ export default function ReportIncident() {
                     type="text" placeholder="e.g. 123 Sky Tower"
                     value={formData.address}
                     onChange={(e) => setFormData({...formData, address: e.target.value})}
-                    className="w-full bg-peppermint/50 dark:bg-cello-dark border border-wedgewood/20 rounded-xl px-4 py-3 text-cello dark:text-peppermint outline-none"
+                    className="w-full bg-peppermint/50 dark:bg-cello-dark border border-wedgewood/20 rounded-xl px-4 py-3 text-cello dark:text-peppermint focus:ring-2 focus:ring-aqua-island outline-none"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -309,7 +330,7 @@ export default function ReportIncident() {
                     type="text" placeholder="e.g. Main Street"
                     value={formData.street}
                     onChange={(e) => setFormData({...formData, street: e.target.value})}
-                    className="w-full bg-peppermint/50 dark:bg-cello-dark border border-wedgewood/20 rounded-xl px-4 py-3 text-cello dark:text-peppermint outline-none"
+                    className="w-full bg-peppermint/50 dark:bg-cello-dark border border-wedgewood/20 rounded-xl px-4 py-3 text-cello dark:text-peppermint focus:ring-2 focus:ring-aqua-island outline-none"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -318,7 +339,7 @@ export default function ReportIncident() {
                     type="text" placeholder="e.g. Near Metro Station"
                     value={formData.landmark}
                     onChange={(e) => setFormData({...formData, landmark: e.target.value})}
-                    className="w-full bg-peppermint/50 dark:bg-cello-dark border border-wedgewood/20 rounded-xl px-4 py-3 text-cello dark:text-peppermint outline-none"
+                    className="w-full bg-peppermint/50 dark:bg-cello-dark border border-wedgewood/20 rounded-xl px-4 py-3 text-cello dark:text-peppermint focus:ring-2 focus:ring-aqua-island outline-none"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -327,7 +348,7 @@ export default function ReportIncident() {
                     type="text" required placeholder="Required"
                     value={formData.city}
                     onChange={(e) => setFormData({...formData, city: e.target.value})}
-                    className="w-full bg-peppermint/50 dark:bg-cello-dark border border-wedgewood/20 rounded-xl px-4 py-3 text-cello dark:text-peppermint outline-none"
+                    className="w-full bg-peppermint/50 dark:bg-cello-dark border border-wedgewood/20 rounded-xl px-4 py-3 text-cello dark:text-peppermint focus:ring-2 focus:ring-aqua-island outline-none"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -336,7 +357,7 @@ export default function ReportIncident() {
                     type="text" required placeholder="Required"
                     value={formData.district}
                     onChange={(e) => setFormData({...formData, district: e.target.value})}
-                    className="w-full bg-peppermint/50 dark:bg-cello-dark border border-wedgewood/20 rounded-xl px-4 py-3 text-cello dark:text-peppermint outline-none"
+                    className="w-full bg-peppermint/50 dark:bg-cello-dark border border-wedgewood/20 rounded-xl px-4 py-3 text-cello dark:text-peppermint focus:ring-2 focus:ring-aqua-island outline-none"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -345,7 +366,7 @@ export default function ReportIncident() {
                     type="text" required placeholder="Required"
                     value={formData.country}
                     onChange={(e) => setFormData({...formData, country: e.target.value})}
-                    className="w-full bg-peppermint/50 dark:bg-cello-dark border border-wedgewood/20 rounded-xl px-4 py-3 text-cello dark:text-peppermint outline-none"
+                    className="w-full bg-peppermint/50 dark:bg-cello-dark border border-wedgewood/20 rounded-xl px-4 py-3 text-cello dark:text-peppermint focus:ring-2 focus:ring-aqua-island outline-none"
                   />
                 </div>
               </div>
@@ -372,7 +393,7 @@ export default function ReportIncident() {
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="w-full bg-amaranth text-peppermint py-6 rounded-2xl font-black text-xl uppercase tracking-[0.2em] shadow-2xl hover:bg-cello dark:hover:bg-peppermint dark:hover:text-cello transition-all active:scale-95 flex items-center justify-center space-x-3"
+                className="w-full bg-amaranth text-peppermint py-6 rounded-2xl font-black text-xl uppercase tracking-[0.2em] shadow-2xl hover:bg-cello transition-all active:scale-95 flex items-center justify-center space-x-3"
               >
                 {loading ? <RefreshCcw className="animate-spin h-6 w-6" /> : (
                   <>

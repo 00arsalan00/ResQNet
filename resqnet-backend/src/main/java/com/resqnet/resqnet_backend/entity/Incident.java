@@ -23,12 +23,11 @@ public class Incident {
     private IncidentType type;
 
     @Column(nullable = false)
-    private Integer severity; // This will be updated by NLP later
+    private Integer severity;
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    // Address Components
     private String address;
     private String street;
     private String landmark;
@@ -45,6 +44,10 @@ public class Incident {
 
     @Column(nullable = false)
     private String reporter;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private SecurityUser user;
 
     @OneToMany(mappedBy = "incident")
     private List<IncidentAssignment> assignments;

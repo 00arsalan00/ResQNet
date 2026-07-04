@@ -15,6 +15,7 @@ import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -42,19 +43,22 @@ public class IncidentServiceImplementation implements IncidentService {
     }
 
     @Override
+    @Transactional
     public IncidentResponseDTO register(IncidentRequestDTO request) {
-        if (request.getEmail() != null && !userRepository.existsByEmail(request.getEmail())) {
-            SecurityUser autoUser = SecurityUser.builder()
-                    .email(request.getEmail())
-                    .phoneNumber(request.getPhoneNumber())
-                    .role(UserRole.CITIZEN)
-                    .authProvider(AuthProviderType.LOCAL)
-                    .enabled(true)
-                    .build();
-            userRepository.save(autoUser);
-        }
+        SecurityUser user = userRepository.findByEmail(request.getEmail())
+                .orElseGet(() -> {
+                    SecurityUser newUser = SecurityUser.builder()
+                            .email(request.getEmail())
+                            .phoneNumber(request.getPhoneNumber())
+                            .role(UserRole.CITIZEN)
+                            .authProvider(AuthProviderType.LOCAL)
+                            .enabled(true)
+                            .build();
+                    return userRepository.save(newUser);
+                });
 
         Incident incident = incidentMapper.toEntity(request, geometryFactory);
+        incident.setUser(user);
 
         if (request.getLatitude() == null || request.getLongitude() == null) {
             String fullAddress = String.format("%s, %s, %s, %s, %s, %s",
@@ -69,6 +73,7 @@ public class IncidentServiceImplementation implements IncidentService {
     }
 
     @Override
+    @Transactional
     public IncidentResponseDTO updatePublic(UUID id, @Valid IncidentRequestDTO request) {
         Incident incident = incidentRepository.findById(id)
                 .orElseThrow(() -> new IncidentNotFoundException("Incident not found with id: " + id));
@@ -98,6 +103,7 @@ public class IncidentServiceImplementation implements IncidentService {
     }
 
     @Override
+    @Transactional
     public IncidentResponseDTO updateAdmin(UUID id, @Valid IncidentRequestDTO request) {
         Incident incident = incidentRepository.findById(id)
                 .orElseThrow(() -> new IncidentNotFoundException("Incident not found with id: " + id));
@@ -133,5 +139,13 @@ public class IncidentServiceImplementation implements IncidentService {
         Incident incident = incidentRepository.findById(id)
                 .orElseThrow(() -> new IncidentNotFoundException("Incident not found with id: " + id));
         incidentRepository.delete(incident);
+    }
+
+    @Override
+    public List<IncidentResponseDTO> getMyIncidents(UUID userId) {
+        return incidentRepository.findByUserIdOrderByStatusDesc(userId)
+                .stream()
+                .map(incidentMapper::toResponse)
+                .toList();
     }
 }

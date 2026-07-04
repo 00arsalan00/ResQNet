@@ -5,12 +5,14 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 export const incidentService = {
   register: (data) => api.post('/incidents', data),
   getAll: (page = 0, size = 10) => api.get(`/incidents?page=${page}&size=${size}`),
   getById: (id) => api.get(`/incidents/${id}`),
+  getMyReports: () => api.get('/incidents/my'),
 };
 
 export const teamService = {
