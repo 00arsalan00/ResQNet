@@ -1,86 +1,58 @@
 # 🚑 ResQNet — Integrated Disaster Response Platform
 
-ResQNet is a sophisticated, full-stack disaster management ecosystem designed to model real-world emergency operations. The system bridge geospatial intelligence, multi-modal security, and high-fidelity visualization to create a unified command and control center.
+ResQNet is a high-resilience, full-stack disaster management ecosystem. It bridges geospatial intelligence, multi-modal security, and high-fidelity visualization to provide real-time situational awareness for citizens and responders.
 
 ---
 
-## 📌 Project Overview
+## 📌 Architectural Overview
 
-ResQNet is structured into three specialized modules:
-1.  **`resqnet-backend`**: The core operational engine handling incidents, resources, and geospatial logic.
-2.  **`resqnet-security`**: A dedicated identity provider managing hybrid authentication and scoped authorization.
-3.  **`resqnet-ui`**: A high-impact frontend delivering real-time situational awareness.
-
----
-
-## 🧠 Phase 1: Core Domain Foundation (Backend)
-
-The system revolves around the **Incident** as the central entity, coordinating human and material resources.
-
-### **Core Entities:**
-*   **Incident**: Disaster events with type, narrative description, and geospatial location.
-*   **RescueTeam**: Professional response units with specialized skills and deployment status.
-*   **Volunteer**: Individuals assisting in local operations.
-*   **Resource**: Inventory management (food, medical supplies, equipment).
-*   **ReliefCamp**: Safe zones and distribution hubs for affected populations.
-
-### **Geospatial Intelligence:**
-*   Uses **PostgreSQL + PostGIS** for storing location as native `POINT` geometry.
-*   **Hybrid Geocoding**: Automatically converts text addresses into GPS coordinates for 100% database coordinate coverage.
+ResQNet is built as a **Modular Monolith** consisting of three specialized pillars:
+1.  **`resqnet-backend`**: The operational "Brain" powered by Java 21, Spring Boot 3.2, and PostGIS.
+2.  **`resqnet-security`**: A high-security Identity Provider (IdP) managing access and accountability.
+3.  **`resqnet-ui`**: A modern React-based "Command Center" with 3D/2D visualization capabilities.
 
 ---
 
-## 🔐 Phase 2: Security & Scoped Authorization
+## 🚀 Advanced Production Features
 
-Designed for high-stress environments, Phase 2 implements a multi-tenant security architecture.
+### **1. Intelligent Geospatial Layer (Backend)**
+*   **PostGIS Integration**: Native storage of disaster locations as geometric points.
+*   **Hybrid Geocoding Engine**: Real-time integration with **OpenStreetMap (Nominatim)** to convert text addresses into mathematical coordinates automatically.
+*   **Fail-Safe Logic**: Automatic fallback to 0,0 and logging if external geocoding providers are unreachable, ensuring system uptime during crises.
 
-### **Hybrid Authentication:**
-*   **Citizen Access**: Instant registration/login via **Google OAuth2**.
-*   **Field Operations**: Passwordless **OTP-based login** for responders using mobile devices.
-*   **Command Level**: Traditional **Email/Password** for coordinators and admins.
+### **2. Multi-Modal Identity Gateway (Security)**
+*   **Hybrid Authentication**: Support for **Google OAuth2** (Citizens), **SMS OTP** (Field Teams), and **Local Password** (Admins).
+*   **Verified Auto-Registration**: Reporting an incident triggers a "Silent Path" where users are automatically registered and verified via OTP, creating a zero-friction entry for victims.
+*   **Traffic Enforcement (Rate Limiting)**: Integrated **Bucket4j Token Bucket** algorithm to throttle requests per IP, preventing DoS attacks and API cost overruns.
+*   **Real Communication**: Backend integration with **Spring Mail** for asynchronous secure key delivery.
 
-### **Authorization & Accountability:**
-*   **District Scoping**: District Coordinators are locked to their specific `districtId`, preventing unauthorized cross-district data access.
-*   **JWT Rotation**: 25-minute Access Tokens + 7-day Refresh Tokens with database-backed revocation.
-*   **Audit Logging**: Every dispatch, status change, and resource allocation is logged with the actor's identity, role, and district.
-
----
-
-## 🖥️ Phase 3: Command Center (Frontend)
-
-The frontend delivers a "War Room" experience, emphasizing clarity and visual impact.
-
-### **High-Fidelity Visualizations:**
-*   **3D Global Threat Monitor**: An interactive **Three.js globe** with dynamic country borders and spherical-to-flat "Unroll" animations.
-*   **2D Operational Reach**: A detailed map grid using `react-simple-maps` with animated **Amaranth Pins** marking active ResQNet nodes.
-*   **NLP Narrative Portal**: A full-page reporting interface designed to capture descriptive disaster narratives for future AI analysis.
-
-### **UX & Design:**
-*   **Fresh Palette**: Orchestrated use of **Amaranth**, **Peppermint**, **Aqua Island**, **Wedgewood**, and **Cello**.
-*   **Dynamic Theming**: Full synchronization between Light and Dark modes across all 2D and 3D components.
-*   **Glassmorphism**: Translucent, blurred UI layers for a modern, tactical feel.
+### **3. Operational Command Console (Frontend)**
+*   **High-Fidelity Visuals**: Immersive **Three.js 3D Globe** for global threat perception and **2D Radar Map** for localized operational reach.
+*   **Personalized Progress Tracking**: Dedicated "My Activity" hub for citizens to track their complaints through the `Reported -> Dispatched -> Resolved` lifecycle.
+*   **Glassmorphic Tactical UI**: Professional UI using an optimized 5-color palette, supporting full theme synchronization across 2D and 3D layers.
 
 ---
 
-## ⚙️ Tech Stack
+## 🛠️ Technical Stack & Concepts
 
-| Layer | Technology |
+| Domain | Technology / Concept |
 | :--- | :--- |
-| **Backend** | Spring Boot 3.2, Java 21, Maven |
-| **Security** | Spring Security 6, JWT (JJWT), OAuth2 Client |
-| **Database** | PostgreSQL, PostGIS (Spatial Data) |
-| **Frontend** | React, Vite, Tailwind CSS, Lucide Icons |
-| **Graphics** | Three.js, React Three Fiber, D3-Geo |
+| **Backend** | Spring Boot, JPA, PostGIS, JTS (Java Topology Suite) |
+| **Security** | Spring Security 6, JWT Rotation, OAuth2, Rate Limiting (Bucket4j) |
+| **Communication** | Asynchronous SMTP (Spring Mail), REST (RestTemplate) |
+| **Frontend** | React, Vite, Tailwind CSS, Three.js, D3-Geo |
+| **Architecture** | Normalization (3NF), Idempotency, Transactional Integrity, ABAC |
 
 ---
 
-## 🧪 Quick Start
+## 👨‍💻 Developer Guide
 
-1.  **Configure DB**: Ensure PostgreSQL is running with a `resqnet` database.
-2.  **Environment**: Set `DB_USERNAME`, `DB_PASSWORD`, and `JWT_SECRET`.
-3.  **Launch Backend**: Run `ResqnetBackendApplication` (Port 8071).
-4.  **Launch Security**: Run `SecurityApplication` (Port 8072).
-5.  **Launch UI**: `cd resqnet-frontend/resqnet-ui && npm install && npm run dev`.
+1.  **Database**: PostgreSQL with PostGIS extension.
+2.  **Environment Variables**:
+    *   `DB_USERNAME`, `DB_PASSWORD`: Database credentials.
+    *   `MAIL_USERNAME`, `MAIL_PASSWORD`: SMTP Credentials (use App Password for Gmail).
+    *   `JWT_SECRET`: 256-bit key for token signing.
+3.  **Startup**: Launch Backend (8071), Security (8072), and Frontend (3000).
 
 ---
 
