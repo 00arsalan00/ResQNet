@@ -9,6 +9,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -46,14 +47,20 @@ public class OtpServiceImplementation implements OtpService {
 
     @Async
     protected void sendEmail(String to, String code) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("ResQNet - Security Access Key");
-        message.setText("Your operational access key is: " + code + "\nValid for 5 minutes.");
-        mailSender.send(message);
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(to);
+            message.setSubject("ResQNet - Security Access Key");
+            message.setText("Your operational access key is: " + code + "\nValid for 5 minutes.");
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("CRITICAL: Failed to send email to " + to + ". Error: " + e.getMessage());
+            System.out.println("DEBUG: FALLBACK - Your OTP is: " + code);
+        }
     }
 
     @Override
+    @Transactional
     public AuthResponseDTO verifyOtp(OtpVerificationDTO request) {
         String identifier = normalizeIdentifier(request.getPhoneNumber());
         
@@ -73,7 +80,16 @@ public class OtpServiceImplementation implements OtpService {
 
         User user = userRepository.findByEmail(identifier)
                 .or(() -> userRepository.findByPhoneNumber(identifier))
-                .orElseThrow(() -> new UserNotFoundException("No responder account found."));
+                .orElseGet(() -> {
+                    User newUser = User.builder()
+                            .email(identifier.contains("@") ? identifier : null)
+                            .phoneNumber(identifier.contains("@") ? null : identifier)
+                            .role(Role.CITIZEN)
+                            .authProvider(identifier.contains("@") ? AuthProvider.LOCAL : AuthProvider.OTP)
+                            .enabled(true)
+                            .build();
+                    return userRepository.save(newUser);
+                });
 
         return authService.generateAuthResponse(user);
     }
